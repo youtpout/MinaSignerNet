@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
@@ -29,6 +30,9 @@ namespace MinaSignerNet
 
         public static BigInteger Q = BigInteger.Parse("40000000000000000000000000000000224698fc0994a8dd8c46eb2100000001", NumberStyles.HexNumber);
 
+
+        public const int NetworkIdMainnet = 0;
+        public const int NetworkIdTestnet = 1;
 
     }
 }

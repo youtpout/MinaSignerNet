@@ -67,5 +67,10 @@ namespace MinaSignerNet
                              .ToArray();
         }
 
+        public static BigInteger BoolToBigInteger(this bool value)
+        {
+            return value ? BigInteger.One : BigInteger.Zero;
+        }
+
     }
 }
