@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace MinaSignerNet
@@ -41,6 +44,26 @@ namespace MinaSignerNet
             return Encoding.UTF8.GetString(decoded);
         }
 
+        public static string ToBase58Check(this byte[] input, byte versionByte)
+        {
+            var withVersion = new List<byte>(input);
+            withVersion.Insert(0, versionByte);
+            var checksum = ComputeChecksum(withVersion.ToArray());
+            var withChecksum = withVersion.Concat(checksum);
+            return Encode(withChecksum.ToArray());
+        }
+
+        public static byte[] ComputeChecksum(this byte[] input)
+        {
+            byte[] hashValue1;
+            byte[] hashValue2;
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                hashValue1 = sha256.ComputeHash(input);
+                hashValue2 = sha256.ComputeHash(hashValue1);
+            }
+            return hashValue2.ToList().Take(4).ToArray();
+        }
 
         public static string Encode(this byte[] input)
         {
@@ -183,5 +206,6 @@ namespace MinaSignerNet
             }
             return range;
         }
+
     }
 }

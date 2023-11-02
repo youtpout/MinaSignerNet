@@ -26,8 +26,10 @@ namespace MinaSignerTest
             Assert.Equal(s, pKey.S.ToString());
 
             var pubKey = pKey.GetPublicKey();
-          //  var base58 = Base58.DecodeFromBytes(pubKey.X.ToByteArray());
-           // output.WriteLine("base58" + base58);
+            string pub58 = "B62qj5tBbE2xyu9k4r7G5npAGpbU1JDBkZm85WCVDMdCrHhS2v2Dy2y";
+            //  var base58 = Base58.DecodeFromBytes(pubKey.X.ToByteArray());
+            output.WriteLine("pubKey " + pubKey);
+            Assert.Equal(pub58, pubKey.ToString());
         }
 
     }
