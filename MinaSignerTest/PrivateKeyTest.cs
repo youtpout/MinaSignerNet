@@ -21,8 +21,13 @@ namespace MinaSignerTest
             string privKey = "EKDtctFSZuDJ8SXuWcbXHot57gZDtu7dNSAZNZvXek8KF8q6jV8K";
             string s = "6394367615778924328473768566388294210789075330077747486508293976718144629785";
             PrivateKey pKey = new PrivateKey(privKey);
+            var grp = Group.FromPrivateKey(pKey);
             output.WriteLine("decoding result : " + pKey.S.ToString());
             Assert.Equal(s, pKey.S.ToString());
+
+            var pubKey = pKey.GetPublicKey();
+            var base58 = Base58.DecodeFromBytes(pubKey.X.ToByteArray());
+            output.WriteLine("base58" + base58);
         }
 
     }

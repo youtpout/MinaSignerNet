@@ -27,10 +27,6 @@ namespace MinaSignerNet
 
         public const byte VersionByte = 90;
 
-        // the modulus. called `p` in most of our code.
-        public BigInteger p = BigInteger.Parse("40000000000000000000000000000000224698fc094cf91b992d30ed00000001", NumberStyles.HexNumber);
-
-        public BigInteger q = BigInteger.Parse("40000000000000000000000000000000224698fc0994a8dd8c46eb2100000001", NumberStyles.HexNumber);
 
         public BigInteger S { get; set; }
 
@@ -38,18 +34,13 @@ namespace MinaSignerNet
         {
             List<byte> decode = base58.Decode().ToList();
 
-            BigInteger x = new BigInteger(decode.ToArray());
-
-            BigInteger y = mod(x, p);
-
-
             var checksum = new List<byte>(decode);
             checksum.RemoveRange(0, decode.Count - 5);
 
             var originalBytes = base58.Decode().ToList();
             originalBytes.RemoveRange(originalBytes.Count - 4, 4);
 
-            Debug.WriteLine("original bytes 0 " + originalBytes[0]);
+            //Debug.WriteLine("original bytes 0 " + originalBytes[0]);
 
             if (originalBytes[0] != VersionByte)
             {
@@ -59,6 +50,19 @@ namespace MinaSignerNet
             originalBytes.RemoveAt(0);
 
             this.S = BinableBigIntegerFromBytes(originalBytes.ToArray());
+        }
+
+        public PublicKey GetPublicKey()
+        {
+            var group = Group.FromPrivateKey(this);
+            var pubKey = new PublicKey() { IsOdd = (group.Y & 1) == 1, X = group.X };
+            return pubKey;
+
+        }
+
+        private static void Scale()
+        {
+
         }
 
         public static string ByteArrayToString(byte[] ba)
