@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace MinaSignerNet
 {
-    public static class BigintHelpers
+    public static class Helpers
     {
-        public static BigInteger BytesToBigInt(byte[] bytes)
+        public static BigInteger BytesToBigInt(this byte[] bytes)
         {
             var x = BigInteger.Zero;
             int bitPosition = 0;
@@ -20,7 +21,7 @@ namespace MinaSignerNet
             return x;
         }
 
-        public static BigInteger parseHexString(string input)
+        public static BigInteger parseHexString(this string input)
         {
             // Parse the bytes explicitly, Bigint endianness is wrong
             var inputBytes = new byte[32];
@@ -35,7 +36,7 @@ namespace MinaSignerNet
          * Transforms bigint to little-endian array of bytes (numbers between 0 and 255) of a given length.
          * Throws an error if the bigint doesn't fit in the given number of bytes.
          */
-        public static byte[] BigIntToBytes(BigInteger x, int length)
+        public static byte[] BigIntToBytes(this BigInteger x, int length)
         {
             if (x < BigInteger.Zero)
             {
@@ -51,6 +52,19 @@ namespace MinaSignerNet
                 throw new Exception($"bigIntToBytes: input does not fit in {length} bytes");
             }
             return bytes;
+        }
+
+        public static string ByteArrayToString(this byte[] ba)
+        {
+            return BitConverter.ToString(ba).Replace("-", "");
+        }
+
+        public static byte[] StringToByteArray(this string hex)
+        {
+            return Enumerable.Range(0, hex.Length)
+                             .Where(x => x % 2 == 0)
+                             .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+                             .ToArray();
         }
 
     }

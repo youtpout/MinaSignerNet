@@ -47,9 +47,10 @@ namespace MinaSignerNet
                 throw new Exception($"fromBase58Check: input version byte ${VersionByte} does not match encoded version byte ${originalBytes[0]}");
             }
 
-            originalBytes.RemoveAt(0);
+            // 2 first bytes is for verification
+            originalBytes.RemoveRange(0, 2);
 
-            this.S = BinableBigIntegerFromBytes(originalBytes.ToArray());
+            this.S = originalBytes.ToArray().BytesToBigInt();
         }
 
         public PublicKey GetPublicKey()
@@ -59,46 +60,5 @@ namespace MinaSignerNet
             return pubKey;
 
         }
-
-        private static void Scale()
-        {
-
-        }
-
-        public static string ByteArrayToString(byte[] ba)
-        {
-            return BitConverter.ToString(ba).Replace("-", "");
-        }
-
-        public static byte[] StringToByteArray(string hex)
-        {
-            return Enumerable.Range(0, hex.Length)
-                             .Where(x => x % 2 == 0)
-                             .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
-                             .ToArray();
-        }
-
-        private BigInteger mod(BigInteger input, BigInteger mod)
-        {
-            BigInteger x = input % mod;
-            if (x < 0) return x + mod;
-            return x;
-        }
-
-        // https://github.com/o1-labs/o1js-bindings/blob/5e5befc8579393dadb96be1917642f860624ed07/lib/provable-bigint.ts#L62
-        private BigInteger BinableBigIntegerFromBytes(byte[] bytes)
-        {
-            int end = bytes.Length;
-            BigInteger x = BigInteger.Zero;
-            int bitPosition = 0;
-            // first byte is verif byte escape it
-            for (int i = 1; i < end; i++)
-            {
-                x += new BigInteger(bytes[i]) << bitPosition;
-                bitPosition += 8;
-            }
-            return x;
-        }
-
     }
 }
