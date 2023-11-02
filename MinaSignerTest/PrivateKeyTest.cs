@@ -24,6 +24,8 @@ namespace MinaSignerTest
             var grp = Group.FromPrivateKey(pKey);
             output.WriteLine("decoding result : " + pKey.S.ToString());
             Assert.Equal(s, pKey.S.ToString());
+            var pKeyStr = pKey.ToString();
+            Assert.Equal(privKey, pKeyStr);
 
             var pubKey = pKey.GetPublicKey();
             string pub58 = "B62qj5tBbE2xyu9k4r7G5npAGpbU1JDBkZm85WCVDMdCrHhS2v2Dy2y";

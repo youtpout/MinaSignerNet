@@ -47,5 +47,16 @@ namespace MinaSignerNet
             return pubKey;
 
         }
+
+
+        public override string ToString()
+        {
+            var bytesX = S.BigIntToBytes(32);
+            List<byte> bytes = new List<byte>(bytesX);
+            // add version number in first place
+            bytes.Insert(0, VersionNumber);
+
+            return bytes.ToArray().ToBase58Check(VersionByte);
+        }
     }
 }
