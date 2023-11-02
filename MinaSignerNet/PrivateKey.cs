@@ -26,31 +26,18 @@ namespace MinaSignerNet
   };*/
 
         public const byte VersionByte = 90;
-
+        public const byte VersionNumber = 1;
 
         public BigInteger S { get; set; }
 
         public PrivateKey(string base58)
         {
-            List<byte> decode = base58.Decode().ToList();
+            List<byte> decode = base58.FromBase58Check(VersionByte).ToList();
 
-            var checksum = new List<byte>(decode);
-            checksum.RemoveRange(0, decode.Count - 5);
+            //  first byte is for verification
+            decode.RemoveAt(0);
 
-            var originalBytes = base58.Decode().ToList();
-            originalBytes.RemoveRange(originalBytes.Count - 4, 4);
-
-            //Debug.WriteLine("original bytes 0 " + originalBytes[0]);
-
-            if (originalBytes[0] != VersionByte)
-            {
-                throw new Exception($"fromBase58Check: input version byte ${VersionByte} does not match encoded version byte ${originalBytes[0]}");
-            }
-
-            // 2 first bytes is for verification
-            originalBytes.RemoveRange(0, 2);
-
-            this.S = originalBytes.ToArray().BytesToBigInt();
+            this.S = decode.ToArray().BytesToBigInt();
         }
 
         public PublicKey GetPublicKey()

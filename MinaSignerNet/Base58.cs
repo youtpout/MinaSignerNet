@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MinaSignerNet
 {
@@ -42,6 +44,40 @@ namespace MinaSignerNet
         {
             byte[] decoded = Decode(input);
             return Encoding.UTF8.GetString(decoded);
+        }
+
+        public static byte[] FromBase58Check(this string base58, byte versionByte)
+        {
+            // throws on invalid character
+            var bytes = Decode(base58);
+            // check checksum
+            var checksum = new List<byte>(bytes);
+            checksum.RemoveRange(0, checksum.Count - 4);
+
+            var originalBytes = bytes.ToList();
+            originalBytes.RemoveRange(originalBytes.Count - 4, 4);
+
+            var actualChecksum = ComputeChecksum(originalBytes.ToArray());
+            if (!ArrayEqual(checksum.ToArray(), actualChecksum))
+                throw new Exception("FromBase58Check: invalid checksum");
+            // check version byte
+            if (originalBytes[0] != versionByte)
+                throw new Exception($"FromBase58Check: input version byte ${versionByte} does not match encoded version byte ${originalBytes[0]}");
+            // return result
+            originalBytes.RemoveAt(0);
+            return originalBytes.ToArray();
+        }
+
+        public static bool ArrayEqual(byte[] firstArray, byte[] secondArray)
+        {
+            if (firstArray.Length != secondArray.Length)
+                return false;
+            for (int i = 0; i < firstArray.Length; i++)
+            {
+                if (firstArray[i] != secondArray[i])
+                    return false;
+            }
+            return true;
         }
 
         public static string ToBase58Check(this byte[] input, byte versionByte)
