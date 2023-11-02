@@ -16,7 +16,7 @@ namespace MinaSignerTest
         }
 
         [Fact]
-        public void EncodeCorrectly()
+        public void EncodeInBase58()
         {
             string input = "HelloWorld";
             string expected = "54uZdajEaDdN6F";
@@ -26,7 +26,7 @@ namespace MinaSignerTest
         }
 
         [Fact]
-        public void DecodeCorrectly()
+        public void DecodeBase58()
         {
             string input = "C7tDXZnoyP9";
             string expected = "ByeWorld";
