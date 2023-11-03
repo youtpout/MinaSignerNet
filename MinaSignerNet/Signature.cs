@@ -1,4 +1,5 @@
 ﻿using Blake2Core;
+using MinaSignerNet;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -22,17 +23,22 @@ namespace MinaSignerNet
         /// <param name="message">message to sign</param>
         /// <param name="networkId">network id by default we use mainnet</param>
         /// <returns>Signature</returns>
-        public static Signature Create(string privateKey, BigInteger message, int networkId = Constants.NetworkIdMainnet)
+        public static Signature Create(string privateKey, BigInteger message, Network networkId = Network.Mainnet)
         {
             var pKey = new PrivateKey(privateKey);
             var kPrime = DeriveNonce(message, pKey, networkId);
-            var group = Group.FromNonce(kPrime);
-            var k = group.Y.BigIntToBytes(32).BytesToBits()[0] ? FiniteField.Negate(kPrime, Constants.P) : kPrime;
-            return new Signature() { R = group.X };
+            var groupPKey = Group.FromPrivateKey(pKey);
+            var groupKPrime = Group.FromNonce(kPrime);
+            var k = groupKPrime.Y.BigIntToBytes(32).BytesToBits()[0] ? FiniteField.Negate(kPrime, Constants.P) : kPrime;
+            var concat = new List<BigInteger> { message, groupPKey.X, groupPKey.Y, groupKPrime.X };
+            var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
+            var result = PoseidonHash.HashWithPrefix(prefix, concat);
+
+            return new Signature() { R = groupKPrime.X };
         }
 
 
-        public static BigInteger DeriveNonce(BigInteger message, PrivateKey privateKey, int networkId)
+        public static BigInteger DeriveNonce(BigInteger message, PrivateKey privateKey, Network networkId)
         {
             var input = new HashInput();
             var group = Group.FromPrivateKey(privateKey);
@@ -43,7 +49,7 @@ namespace MinaSignerNet
             input.Fields.Add(privateKey.S);
 
             List<BigInteger> dataPacked = new List<BigInteger>();
-            input.Packed.Add(new Tuple<BigInteger, int>(new BigInteger(networkId), 8));
+            input.Packed.Add(new Tuple<BigInteger, int>(new BigInteger((int)networkId), 8));
 
 
             var packedInput = input.PackToFields();
@@ -59,7 +65,16 @@ namespace MinaSignerNet
             return new BigInteger(outputBytes);
         }
 
-
+        public static BigInteger HashMessage(HashInput input, PublicKey publicKey, BigInteger r, Network networkId)
+        {
+            //var input = HashInput.append(message, { fields: [x, y, r] });
+            //let prefix =
+            //  networkId === 'mainnet'
+            //    ? prefixes.signatureMainnet
+            //    : prefixes.signatureTestnet;
+            //return hashWithPrefix(prefix, packToFields(input));
+            return new BigInteger();
+        }
 
         public override string ToString()
         {

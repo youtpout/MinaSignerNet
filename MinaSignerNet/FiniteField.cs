@@ -51,6 +51,33 @@ namespace MinaSignerNet
             if (b != BigInteger.One) return BigInteger.Zero;
             return Mod(x, p);
         }
+
+        public static BigInteger Power(BigInteger a, BigInteger n, BigInteger p)
+        {
+            a = Mod(a, p);
+            var x = BigInteger.One;
+            for (; n > BigInteger.Zero; n >>= 1)
+            {
+                if ((n & 1) == 1) x = Mod(x * a, p);
+                a = Mod(a * a, p);
+            }
+            return x;
+        }
+
+        public static BigInteger Dot(List<BigInteger> x, List<BigInteger> y, BigInteger p)
+        {
+            var z = BigInteger.Zero;
+            var n = x.Count;
+            for (var i = 0; i < n; i++)
+            {
+                z += x[i] * y[i];
+            }
+            return Mod(z, p);
+        }
+        public static BigInteger Add(BigInteger x, BigInteger y, BigInteger p)
+        {
+            return Mod(x + y, p);
+        }
     }
 
 }

@@ -5,7 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="PoseidonParamsKimchiFp.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Blake2Core" Version="1.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="PoseidonParamsKimchiFp.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

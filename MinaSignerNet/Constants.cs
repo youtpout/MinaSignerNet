@@ -7,8 +7,17 @@ using System.Text;
 
 namespace MinaSignerNet
 {
+    public enum Network
+    {
+        Mainnet = 1,
+        Testnet = 0
+    }
+
     public static class Constants
     {
+        public const string SignatureMainnet = "MinaSignatureMainnet";
+        public const string SignatureTestnet = "CodaSignature*******";
+
         public static GroupProjective PallasGeneratorProjective = new GroupProjective()
         {
             X = BigInteger.One,
@@ -29,10 +38,6 @@ namespace MinaSignerNet
         public static BigInteger P = BigInteger.Parse("40000000000000000000000000000000224698fc094cf91b992d30ed00000001", NumberStyles.HexNumber);
 
         public static BigInteger Q = BigInteger.Parse("40000000000000000000000000000000224698fc0994a8dd8c46eb2100000001", NumberStyles.HexNumber);
-
-
-        public const int NetworkIdMainnet = 0;
-        public const int NetworkIdTestnet = 1;
 
     }
 }

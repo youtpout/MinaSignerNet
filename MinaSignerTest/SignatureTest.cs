@@ -23,7 +23,7 @@ namespace MinaSignerTest
             BigInteger message = BigInteger.Parse("123456");
             string signatureBase58 = "7mXNcsg23PYDdziVuh2s9skr3fx3PV9UGxAtzRf4KwLmwVnypCPGwmUsRW6TmTKTLTP3KerhfdYWRLWtFGmFe2J6CF4GByvv";
 
-            Signature signature = Signature.Create(privKey, message);
+            Signature signature = Signature.Create(privKey, message, Network.Testnet);
 
 
             Assert.Equal(signatureBase58, signature.ToString());
