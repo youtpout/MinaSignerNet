@@ -26,14 +26,14 @@ namespace MinaSignerNet
         /// <param name="message">message to sign</param>
         /// <param name="networkId">network id by default we use mainnet</param>
         /// <returns>Signature</returns>
-        public static Signature Create(string privateKey, BigInteger message, Network networkId = Network.Mainnet)
+        public static Signature Sign(BigInteger message, string privateKey, Network networkId = Network.Mainnet)
         {
             var pKey = new PrivateKey(privateKey);
             var kPrime = DeriveNonce(message, pKey, networkId);
             var groupPKey = Group.FromPrivateKey(pKey);
             var groupKPrime = Group.FromNonce(kPrime);
             var r = groupKPrime.X;
-            var k = groupKPrime.Y.BigIntToBytes(32).BytesToBits()[0] ? FiniteField.Negate(kPrime, Constants.P) : kPrime;
+            var k = groupKPrime.Y.IsEven ?  kPrime : FiniteField.Negate(kPrime, Constants.Q);
             var concat = new List<BigInteger> { message, groupPKey.X, groupPKey.Y, r };
             var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
             var e = PoseidonHash.HashWithPrefix(prefix, concat);

@@ -84,21 +84,21 @@ namespace MinaSignerNet
         {
             var withVersion = new List<byte>(input);
             withVersion.Insert(0, versionByte);
-            var checksum = ComputeChecksum(withVersion.ToArray());
+            var arr = withVersion.ToArray();
+            var checksum = ComputeChecksum(arr);
             var withChecksum = withVersion.Concat(checksum);
             return Encode(withChecksum.ToArray());
         }
 
         public static byte[] ComputeChecksum(this byte[] input)
         {
-            byte[] hashValue1;
-            byte[] hashValue2;
             using (SHA256 sha256 = SHA256.Create())
             {
-                hashValue1 = sha256.ComputeHash(input);
-                hashValue2 = sha256.ComputeHash(hashValue1);
+                byte[] hashValue1 = sha256.ComputeHash(input);
+                byte[] hashValue2 = sha256.ComputeHash(hashValue1);
+                var checksum = hashValue2.ToList().Take(4).ToArray();
+                return checksum;
             }
-            return hashValue2.ToList().Take(4).ToArray();
         }
 
         public static string Encode(this byte[] input)
