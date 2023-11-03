@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Blake2Core;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -24,12 +25,14 @@ namespace MinaSignerNet
         public static Signature Create(string privateKey, BigInteger message, int networkId = Constants.NetworkIdMainnet)
         {
             var pKey = new PrivateKey(privateKey);
-            DeriveNonce(message, pKey, networkId);
-            return new Signature();
+            var kPrime = DeriveNonce(message, pKey, networkId);
+            var group = Group.FromNonce(kPrime);
+            var k = group.Y.BigIntToBytes(32).BytesToBits()[0] ? FiniteField.Negate(kPrime, Constants.P) : kPrime;
+            return new Signature() { R = group.X };
         }
 
 
-        public static byte[] DeriveNonce(BigInteger message, PrivateKey privateKey, int networkId)
+        public static BigInteger DeriveNonce(BigInteger message, PrivateKey privateKey, int networkId)
         {
             var input = new HashInput();
             var group = Group.FromPrivateKey(privateKey);
@@ -46,8 +49,14 @@ namespace MinaSignerNet
             var packedInput = input.PackToFields();
             var inputBits = packedInput.SelectMany(x => x.BigIntToBytes(32).BytesToBits().Take(255)).ToList();
             var inputBytes = inputBits.BitsToBytes();
-            // let inputBits = packedInput.Select(x=> x.BytesToBigInt()).flat();
-            return new byte[0];
+
+            Blake2BConfig config = new Blake2BConfig() { OutputSizeInBytes = 32 };
+            var outputBytes = Blake2B.ComputeHash(inputBytes.ToArray(), config);
+            // drop the top two bits to convert into a scalar field element
+            // (creates negligible bias because q = 2^254 + eps, eps << q)
+            outputBytes[outputBytes.Count() - 1] &= 0x3f;
+
+            return new BigInteger(outputBytes);
         }
 
 

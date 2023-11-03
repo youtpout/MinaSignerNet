@@ -24,5 +24,14 @@ namespace MinaSignerNet
             return projToAffine;
         }
 
+        public static Group FromNonce(BigInteger nonce)
+        {
+
+            var projectiveScale = EllipticCurve.ProjectiveScale(Constants.PallasGeneratorProjective, nonce, Constants.P);
+            var projToAffine = EllipticCurve.ProjectiveToAffine(projectiveScale, Constants.P);
+
+            return projToAffine;
+        }
+
     }
 }

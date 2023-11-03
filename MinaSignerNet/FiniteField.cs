@@ -21,6 +21,11 @@ namespace MinaSignerNet
             return x;
         }
 
+        public static BigInteger Negate(BigInteger x, BigInteger p)
+        {
+            return x == BigInteger.Zero ? BigInteger.Zero : p - x;
+        }
+
         public static BigInteger Inverse(BigInteger a, BigInteger p)
         {
             a = Mod(a, p);
