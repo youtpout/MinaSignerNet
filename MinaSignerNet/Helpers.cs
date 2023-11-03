@@ -9,7 +9,7 @@ namespace MinaSignerNet
 {
     public static class Helpers
     {
-        public static BigInteger BytesToBigInt(this byte[] bytes)
+        public static BigInteger BytesToBigInt(this IEnumerable<byte> bytes)
         {
             var x = BigInteger.Zero;
             int bitPosition = 0;
@@ -72,7 +72,6 @@ namespace MinaSignerNet
             return value ? BigInteger.One : BigInteger.Zero;
         }
 
-
         public static List<bool> BytesToBits(this IEnumerable<byte> bytes)
         {
             return bytes
@@ -108,7 +107,6 @@ namespace MinaSignerNet
             return bytes;
         }
 
-
         public static List<BigInteger> PackToFields(this HashInput hashInput)
         {
             if (hashInput.Packed.Count == 0) return hashInput.Fields;
@@ -135,6 +133,18 @@ namespace MinaSignerNet
             packedBits.Add(currentPackedField);
             hashInput.Fields.AddRange(packedBits);
             return hashInput.Fields;
+        }
+
+        public static BigInteger Shift(this BigInteger s)
+        {
+            return FiniteField.Add(FiniteField.Add(s, s, Constants.P), Constants.ScalarShift, Constants.P);
+        }
+
+        public static BigInteger Unshift(this BigInteger s)
+        {
+            var sub = FiniteField.Sub(s, Constants.ScalarShift, Constants.P);
+            var mul = FiniteField.Mul(sub, Constants.OneHalf, Constants.P);
+            return mul;
         }
 
     }

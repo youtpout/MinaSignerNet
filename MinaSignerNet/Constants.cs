@@ -39,5 +39,9 @@ namespace MinaSignerNet
 
         public static BigInteger Q = BigInteger.Parse("40000000000000000000000000000000224698fc0994a8dd8c46eb2100000001", NumberStyles.HexNumber);
 
+        public static BigInteger ScalarShift =  BigInteger.Parse("28948022309329048855892746252171976963271935850878634640049049255563201871872");
+
+        public static BigInteger OneHalf = BigInteger.Parse("14474011154664524427946373126085988481681528240970823689839871374196681474049");
+
     }
 }

@@ -25,7 +25,7 @@ namespace MinaSignerTest
 
             Signature signature = Signature.Create(privKey, message, Network.Testnet);
 
-
+            output.WriteLine("signature " + signature.ToString());
             Assert.Equal(signatureBase58, signature.ToString());
         }
 

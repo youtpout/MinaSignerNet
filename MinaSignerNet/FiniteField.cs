@@ -78,6 +78,18 @@ namespace MinaSignerNet
         {
             return Mod(x + y, p);
         }
+
+        public static BigInteger Mul(BigInteger x, BigInteger y, BigInteger p)
+        {
+            return Mod(x * y, p);
+        }
+
+        public static BigInteger Sub(BigInteger x, BigInteger y, BigInteger p)
+        {
+            return Mod(x - y, p);
+        }
+
+
     }
 
 }

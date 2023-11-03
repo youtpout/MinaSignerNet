@@ -12,6 +12,9 @@ namespace MinaSignerNet
 {
     public class Signature
     {
+
+        public const byte VersionNumber = 1;
+        public const byte VersionByte = 154;
         public BigInteger R { get; set; }
         public BigInteger S { get; set; }
 
@@ -29,12 +32,14 @@ namespace MinaSignerNet
             var kPrime = DeriveNonce(message, pKey, networkId);
             var groupPKey = Group.FromPrivateKey(pKey);
             var groupKPrime = Group.FromNonce(kPrime);
+            var r = groupKPrime.X;
             var k = groupKPrime.Y.BigIntToBytes(32).BytesToBits()[0] ? FiniteField.Negate(kPrime, Constants.P) : kPrime;
-            var concat = new List<BigInteger> { message, groupPKey.X, groupPKey.Y, groupKPrime.X };
+            var concat = new List<BigInteger> { message, groupPKey.X, groupPKey.Y, r };
             var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
-            var result = PoseidonHash.HashWithPrefix(prefix, concat);
+            var e = PoseidonHash.HashWithPrefix(prefix, concat);
+            var s = FiniteField.Add(k, FiniteField.Mul(e, pKey.S, Constants.Q), Constants.Q);
 
-            return new Signature() { R = groupKPrime.X };
+            return new Signature() { R = r, S = s };
         }
 
 
@@ -78,7 +83,13 @@ namespace MinaSignerNet
 
         public override string ToString()
         {
-            return base.ToString();
+            var bytesR = R.BigIntToBytes(32);
+            var bytesS = S.BigIntToBytes(32);
+            List<byte> bytes = new List<byte>(bytesR.Concat(bytesS));
+            // add version number in first place
+            bytes.Insert(0, VersionNumber);        
+
+            return bytes.ToArray().ToBase58Check(VersionByte);
         }
 
     }
