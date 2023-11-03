@@ -72,5 +72,70 @@ namespace MinaSignerNet
             return value ? BigInteger.One : BigInteger.Zero;
         }
 
+
+        public static List<bool> BytesToBits(this IEnumerable<byte> bytes)
+        {
+            return bytes
+              .SelectMany((b) =>
+              {
+                  var bits = new Boolean[8];
+                  for (var i = 0; i < 8; i++)
+                  {
+                      bits[i] = (b & 1) == 1;
+                      b >>= 1;
+                  }
+                  return bits;
+              }).ToList();
+        }
+
+        public static List<byte> BitsToBytes(this IEnumerable<bool> bits)
+        {
+            var bytes = new List<byte>();
+            int size = bits.Count();
+            int index = 0;
+            while (index < size)
+            {
+                var byteBits = bits.Skip(index).Take(8);
+                index += 8;
+                byte b = 0x0;
+                for (var i = 0; i < byteBits.Count(); i++)
+                {
+                    if (!byteBits.ElementAt(i)) continue;
+                    b |= (byte)(1 << i);
+                }
+                bytes.Add(b);
+            }
+            return bytes;
+        }
+
+
+        public static List<BigInteger> PackToFields(this HashInput hashInput)
+        {
+            if (hashInput.Packed.Count == 0) return hashInput.Fields;
+            List<BigInteger> packedBits = new List<BigInteger>();
+            var currentPackedField = BigInteger.Zero;
+            int currentSize = 0;
+
+            foreach (var item in hashInput.Packed)
+            {
+                var size = item.Item2;
+                var field = item.Item1;
+                currentSize += size;
+                if (currentSize < 255)
+                {
+                    currentPackedField = currentPackedField * (BigInteger.One << size) + field;
+                }
+                else
+                {
+                    packedBits.Add(currentPackedField);
+                    currentSize = size;
+                    currentPackedField = field;
+                }
+            }
+            packedBits.Add(currentPackedField);
+            hashInput.Fields.AddRange(packedBits);
+            return hashInput.Fields;
+        }
+
     }
 }
