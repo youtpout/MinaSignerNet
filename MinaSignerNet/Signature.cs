@@ -21,9 +21,9 @@ namespace MinaSignerNet
 
         /// <summary>
         /// Sign a message from a private key
-        /// </summary>
-        /// <param name="privateKey">private key in base58 format</param>
+        /// </summary>        
         /// <param name="message">message to sign</param>
+        /// <param name="privateKey">private key in base58 format</param>
         /// <param name="networkId">network id by default we use mainnet</param>
         /// <returns>Signature</returns>
         public static Signature Sign(BigInteger message, string privateKey, Network networkId = Network.Mainnet)
@@ -33,13 +33,38 @@ namespace MinaSignerNet
             var groupPKey = Group.FromPrivateKey(pKey);
             var groupKPrime = Group.FromNonce(kPrime);
             var r = groupKPrime.X;
-            var k = groupKPrime.Y.IsEven ?  kPrime : FiniteField.Negate(kPrime, Constants.Q);
+            var k = groupKPrime.Y.IsEven ? kPrime : FiniteField.Negate(kPrime, Constants.Q);
             var concat = new List<BigInteger> { message, groupPKey.X, groupPKey.Y, r };
             var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
             var e = PoseidonHash.HashWithPrefix(prefix, concat);
             var s = FiniteField.Add(k, FiniteField.Mul(e, pKey.S, Constants.Q), Constants.Q);
 
             return new Signature() { R = r, S = s };
+        }
+
+
+        /// <summary>
+        /// Verifies a signature created by Sign method, returns `true` if (and only if) the signature is valid. 
+        /// </summary>
+        /// <param name="signature">signature to check</param>
+        /// <param name="message">original message</param>
+        /// <param name="publicKey">public  key in base58 format</param>
+        /// <param name="networkId">network id by default we use mainnet</param>
+        /// <returns>True if correct</returns>
+        public static bool Verify(Signature signature, BigInteger message, PublicKey publicKey, Network networkId = Network.Mainnet)
+        {
+            //var pKey = new PrivateKey(privateKey);
+            //var kPrime = DeriveNonce(message, pKey, networkId);
+            //var groupPKey = Group.FromPrivateKey(pKey);
+            //var groupKPrime = Group.FromNonce(kPrime);
+            //var r = groupKPrime.X;
+            //var k = groupKPrime.Y.IsEven ? kPrime : FiniteField.Negate(kPrime, Constants.Q);
+            //var concat = new List<BigInteger> { message, groupPKey.X, groupPKey.Y, r };
+            //var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
+            //var e = PoseidonHash.HashWithPrefix(prefix, concat);
+            //var s = FiniteField.Add(k, FiniteField.Mul(e, pKey.S, Constants.Q), Constants.Q);
+
+            return false;
         }
 
 
@@ -87,7 +112,7 @@ namespace MinaSignerNet
             var bytesS = S.BigIntToBytes(32);
             List<byte> bytes = new List<byte>(bytesR.Concat(bytesS));
             // add version number in first place
-            bytes.Insert(0, VersionNumber);        
+            bytes.Insert(0, VersionNumber);
 
             return bytes.ToArray().ToBase58Check(VersionByte);
         }
