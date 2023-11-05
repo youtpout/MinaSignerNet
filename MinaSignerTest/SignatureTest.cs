@@ -33,7 +33,9 @@ namespace MinaSignerTest
             Assert.Equal(BigInteger.Parse(r), signature.R);
             output.WriteLine("signature " + signature.ToString());
             Assert.Equal(signatureBase58, signature.ToString());
-            Signature.Verify(signature, message, pubKey, Network.Testnet);
+
+            var isGood = Signature.Verify(signature, message, pubKey, Network.Testnet);
+            Assert.True(isGood);
         }
 
 

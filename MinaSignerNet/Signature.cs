@@ -55,17 +55,23 @@ namespace MinaSignerNet
         {
             var pubKey = new PublicKey(publicKey);
             var groupPubKey = Group.FromPublickKey(pubKey);
-            //var kPrime = DeriveNonce(message, pKey, networkId);
-            //var groupPKey = Group.FromPrivateKey(pKey);
-            //var groupKPrime = Group.FromNonce(kPrime);
-            //var r = groupKPrime.X;
-            //var k = groupKPrime.Y.IsEven ? kPrime : FiniteField.Negate(kPrime, Constants.Q);
-            //var concat = new List<BigInteger> { message, groupPKey.X, groupPKey.Y, r };
-            //var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
-            //var e = PoseidonHash.HashWithPrefix(prefix, concat);
-            //var s = FiniteField.Add(k, FiniteField.Mul(e, pKey.S, Constants.Q), Constants.Q);
-
-            return false;
+            var concat = new List<BigInteger> { message, groupPubKey.X, groupPubKey.Y, signature.R };
+            var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
+            var e = PoseidonHash.HashWithPrefix(prefix, concat);
+            var scale = EllipticCurve.ProjectiveScale(Constants.PallasGeneratorProjective, signature.S, Constants.P);
+            var groupProj = new GroupProjective(groupPubKey);
+            var scalePubKey = EllipticCurve.ProjectiveScale(groupProj, e, Constants.P);
+            var R = EllipticCurve.ProjectiveSub(scale, scalePubKey, Constants.P);
+            try
+            {
+                // if `R` is infinity, Group.fromProjective throws an error, so `verify` returns false
+                Group grpFinal = R.ToGroup();
+                return grpFinal.Y.IsEven && grpFinal.X == signature.R;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
 

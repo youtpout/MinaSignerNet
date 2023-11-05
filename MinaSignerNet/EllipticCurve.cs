@@ -13,7 +13,7 @@ namespace MinaSignerNet
         /// <param name="g">Projective from calculate</param>
         /// <param name="x">Private key S</param>
         /// <param name="p">Modulus P</param>
-        public static GroupProjective ProjectiveScale(GroupProjective g, BigInteger x, BigInteger p)
+        public static GroupProjective ProjectiveScale(this GroupProjective g, BigInteger x, BigInteger p)
         {
             var h = Constants.ProjectiveZero;
 
@@ -30,7 +30,7 @@ namespace MinaSignerNet
             return h;
         }
 
-        public static GroupProjective ProjectiveAdd(GroupProjective g, GroupProjective h, BigInteger p)
+        public static GroupProjective ProjectiveAdd(this GroupProjective g, GroupProjective h, BigInteger p)
         {
             if (g.Z == BigInteger.Zero)
                 return h;
@@ -80,7 +80,7 @@ namespace MinaSignerNet
             return new GroupProjective() { X = X3, Y = Y3, Z = Z3 };
         }
 
-        public static GroupProjective ProjectiveDouble(GroupProjective g, BigInteger p)
+        public static GroupProjective ProjectiveDouble(this GroupProjective g, BigInteger p)
         {
             if (g.Z == BigInteger.Zero)
                 return g;
@@ -110,7 +110,7 @@ namespace MinaSignerNet
             return new GroupProjective() { X = X3, Y = Y3, Z = Z3 };
         }
 
-        public static GroupAffine ProjectiveToAffine(GroupProjective g, BigInteger p)
+        public static GroupAffine ProjectiveToAffine(this GroupProjective g, BigInteger p)
         {
             var z = g.Z;
             if (z == BigInteger.Zero)
@@ -135,5 +135,15 @@ namespace MinaSignerNet
             }
         }
 
+        public static GroupProjective ProjectiveSub(this GroupProjective g, GroupProjective h, BigInteger p)
+        {
+            return ProjectiveAdd(g, ProjectiveNeg(h, p), p);
+        }
+
+        public static GroupProjective ProjectiveNeg(this GroupProjective g, BigInteger p)
+        {
+            return new GroupProjective { X = g.X, Y = g.Y == BigInteger.Zero ? BigInteger.Zero : p - g.Y, Z = g.Z };
+        }
     }
+
 }
