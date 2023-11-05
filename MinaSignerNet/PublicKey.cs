@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -11,6 +12,16 @@ namespace MinaSignerNet
         public const byte VersionByte = 203;
         public bool IsOdd { get; set; }
         public BigInteger X { get; set; }
+
+        public static PublicKey FromBase58(string base58)
+        {
+            var decoded = base58.FromBase58Check(VersionByte);
+            // we ignore the 2 first number who were version number and the last who is odd indicator
+            var x = decoded.Skip(2).Take(32).BytesToBigInt();
+            var odd = decoded.Last() == 0b1;
+            return new PublicKey() { X = x, IsOdd = odd };
+        }
+
 
         public override string ToString()
         {
