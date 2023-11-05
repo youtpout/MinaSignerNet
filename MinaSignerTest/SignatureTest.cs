@@ -38,6 +38,24 @@ namespace MinaSignerTest
             Assert.True(isGood);
         }
 
+
+        [Fact]
+        public void SignMultipleMessage()
+        {
+            string privKey = "EKDtctFSZuDJ8SXuWcbXHot57gZDtu7dNSAZNZvXek8KF8q6jV8K";
+            List<BigInteger> messages = new List<BigInteger> { 2, 1 };
+            string signatureBase58 = "7mXVMsyUxwX8NFKn9ppBJXPEUF2Hz6nyooPLosCw2GsrrcrW2WYvpZW7NUZAcY4sS9ZKDUNapRuSUW4nmCn919S197JWNqHk";
+
+            string pubKey = "B62qj5tBbE2xyu9k4r7G5npAGpbU1JDBkZm85WCVDMdCrHhS2v2Dy2y";
+
+            Signature signature = Signature.Sign(messages, privKey, Network.Testnet);
+            output.WriteLine("signature " + signature.ToString());
+            Assert.Equal(signatureBase58, signature.ToString());
+
+            var isGood = Signature.Verify(signature, messages, pubKey, Network.Testnet);
+            Assert.True(isGood);
+        }
+
         [Fact]
         public void SignatureIncorrect()
         {

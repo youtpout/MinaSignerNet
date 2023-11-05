@@ -38,19 +38,34 @@ namespace MinaSignerNet
         /// <summary>
         /// Sign a message from a private key
         /// </summary>        
-        /// <param name="message">message to sign</param>
+        /// <param name="message">bigIntger to sign</param>
         /// <param name="privateKey">private key in base58 format</param>
         /// <param name="networkId">network id by default we use mainnet</param>
         /// <returns>Signature</returns>
         public static Signature Sign(BigInteger message, string privateKey, Network networkId = Network.Mainnet)
         {
+            return Sign(new List<BigInteger>() { message }, privateKey, networkId);
+        }
+
+        /// <summary>
+        /// Sign a message from a private key
+        /// </summary>        
+        /// <param name="message">list bigIntger to sign</param>
+        /// <param name="privateKey">private key in base58 format</param>
+        /// <param name="networkId">network id by default we use mainnet</param>
+        /// <returns>Signature</returns>
+        public static Signature Sign(List<BigInteger> messages, string privateKey, Network networkId = Network.Mainnet)
+        {
             var pKey = new PrivateKey(privateKey);
-            var kPrime = DeriveNonce(message, pKey, networkId);
+            var kPrime = DeriveNonce(messages, pKey, networkId);
             var groupPKey = Group.FromPrivateKey(pKey);
             var groupKPrime = Group.FromNonce(kPrime);
             var r = groupKPrime.X;
             var k = groupKPrime.Y.IsEven ? kPrime : FiniteField.Negate(kPrime, Constants.Q);
-            var concat = new List<BigInteger> { message, groupPKey.X, groupPKey.Y, r };
+            var concat = new List<BigInteger>(messages);
+            concat.Add(groupPKey.X);
+            concat.Add(groupPKey.Y);
+            concat.Add(r);
             var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
             var e = PoseidonHash.HashWithPrefix(prefix, concat);
             var s = FiniteField.Add(k, FiniteField.Mul(e, pKey.S, Constants.Q), Constants.Q);
@@ -63,15 +78,32 @@ namespace MinaSignerNet
         /// Verifies a signature created by Sign method, returns `true` if (and only if) the signature is valid. 
         /// </summary>
         /// <param name="signature">signature to check</param>
-        /// <param name="message">original message</param>
+        /// <param name="message">original bigIntger signed</param>
         /// <param name="publicKey">public key in base58 format</param>
         /// <param name="networkId">network id by default we use mainnet</param>
         /// <returns>True if correct</returns>
         public static bool Verify(Signature signature, BigInteger message, string publicKey, Network networkId = Network.Mainnet)
         {
+            return Verify(signature, new List<BigInteger> { message }, publicKey, networkId);
+        }
+
+
+        /// <summary>
+        /// Verifies a signature created by Sign method, returns `true` if (and only if) the signature is valid. 
+        /// </summary>
+        /// <param name="signature">signature to check</param>
+        /// <param name="messages">original list bigIntger signed</param>
+        /// <param name="publicKey">public key in base58 format</param>
+        /// <param name="networkId">network id by default we use mainnet</param>
+        /// <returns>True if correct</returns>
+        public static bool Verify(Signature signature, List<BigInteger> messages, string publicKey, Network networkId = Network.Mainnet)
+        {
             var pubKey = new PublicKey(publicKey);
             var groupPubKey = Group.FromPublickKey(pubKey);
-            var concat = new List<BigInteger> { message, groupPubKey.X, groupPubKey.Y, signature.R };
+            var concat = new List<BigInteger>(messages);
+            concat.Add(groupPubKey.X);
+            concat.Add(groupPubKey.Y);
+            concat.Add(signature.R);
             var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
             var e = PoseidonHash.HashWithPrefix(prefix, concat);
             var scale = EllipticCurve.ProjectiveScale(Constants.PallasGeneratorProjective, signature.S, Constants.P);
@@ -90,13 +122,12 @@ namespace MinaSignerNet
             }
         }
 
-
-        public static BigInteger DeriveNonce(BigInteger message, PrivateKey privateKey, Network networkId)
+        public static BigInteger DeriveNonce(List<BigInteger> messages, PrivateKey privateKey, Network networkId)
         {
             var input = new HashInput();
             var group = Group.FromPrivateKey(privateKey);
 
-            input.Fields.Add(message);
+            input.Fields.AddRange(messages);
             input.Fields.Add(group.X);
             input.Fields.Add(group.Y);
             input.Fields.Add(privateKey.S);
