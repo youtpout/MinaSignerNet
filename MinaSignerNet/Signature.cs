@@ -18,6 +18,7 @@ namespace MinaSignerNet
         public BigInteger R { get; set; }
         public BigInteger S { get; set; }
 
+        /*
         /// <summary>
         /// Sign a message from a private key
         /// </summary>        
@@ -32,7 +33,7 @@ namespace MinaSignerNet
             //return Sign(msgConvert, privateKey, networkId);
             throw new NotImplementedException();
         }
-
+        */
 
         /// <summary>
         /// Sign a message from a private key

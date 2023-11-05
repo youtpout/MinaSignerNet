@@ -66,7 +66,7 @@ namespace MinaSignerTest
 
             string pubKey = "B62qj5tBbE2xyu9k4r7G5npAGpbU1JDBkZm85WCVDMdCrHhS2v2Dy2y";
 
-            Signature signature = Signature.Sign(message, privKey, Network.Testnet);
+            //Signature signature = Signature.Sign(message, privKey, Network.Testnet);
 
             //Assert.Equal(BigInteger.Parse(s), signature.S);
             //Assert.Equal(BigInteger.Parse(r), signature.R);
