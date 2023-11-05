@@ -13,13 +13,18 @@ namespace MinaSignerNet
         public bool IsOdd { get; set; }
         public BigInteger X { get; set; }
 
-        public static PublicKey FromBase58(string base58)
+        public PublicKey(BigInteger x, bool isOdd)
+        {
+            this.X = x;
+            this.IsOdd = isOdd;
+        }
+
+        public PublicKey(string base58)
         {
             var decoded = base58.FromBase58Check(VersionByte);
             // we ignore the 2 first number who were version number and the last who is odd indicator
-            var x = decoded.Skip(2).Take(32).BytesToBigInt();
-            var odd = decoded.Last() == 0b1;
-            return new PublicKey() { X = x, IsOdd = odd };
+            X = decoded.Skip(2).Take(32).BytesToBigInt();
+            IsOdd = decoded.Last() == 0b1;
         }
 
 

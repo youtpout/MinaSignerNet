@@ -43,7 +43,7 @@ namespace MinaSignerNet
         public PublicKey GetPublicKey()
         {
             var group = Group.FromPrivateKey(this);
-            var pubKey = new PublicKey() { IsOdd = (group.Y & 1) == 1, X = group.X };
+            var pubKey = new PublicKey(group.X, !group.Y.IsEven);
             return pubKey;
 
         }

@@ -48,12 +48,12 @@ namespace MinaSignerNet
         /// </summary>
         /// <param name="signature">signature to check</param>
         /// <param name="message">original message</param>
-        /// <param name="publicKey">public  key in base58 format</param>
+        /// <param name="publicKey">public key in base58 format</param>
         /// <param name="networkId">network id by default we use mainnet</param>
         /// <returns>True if correct</returns>
-        public static bool Verify(Signature signature, BigInteger message, PublicKey publicKey, Network networkId = Network.Mainnet)
+        public static bool Verify(Signature signature, BigInteger message, string publicKey, Network networkId = Network.Mainnet)
         {
-            //var pKey = new PrivateKey(privateKey);
+            var pubKey = new PublicKey(publicKey);
             //var kPrime = DeriveNonce(message, pKey, networkId);
             //var groupPKey = Group.FromPrivateKey(pKey);
             //var groupKPrime = Group.FromNonce(kPrime);
