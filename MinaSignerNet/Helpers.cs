@@ -21,7 +21,7 @@ namespace MinaSignerNet
             return x;
         }
 
-        public static BigInteger parseHexString(this string input)
+        public static BigInteger ParseHexString(this string input)
         {
             // Parse the bytes explicitly, Bigint endianness is wrong
             var inputBytes = new byte[32];

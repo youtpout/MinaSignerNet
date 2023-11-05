@@ -18,6 +18,21 @@ namespace MinaSignerNet
         public BigInteger R { get; set; }
         public BigInteger S { get; set; }
 
+        /// <summary>
+        /// Sign a message from a private key
+        /// </summary>        
+        /// <param name="message">message to sign</param>
+        /// <param name="privateKey">private key in base58 format</param>
+        /// <param name="networkId">network id by default we use mainnet</param>
+        /// <returns>Signature</returns>
+        public static Signature Sign(string message, string privateKey, Network networkId = Network.Mainnet)
+        {
+            //var msgByte = Encoding.UTF8.GetBytes(message);
+            //BigInteger msgConvert = msgByte.BytesToBigInt();
+            //return Sign(msgConvert, privateKey, networkId);
+            throw new NotImplementedException();
+        }
+
 
         /// <summary>
         /// Sign a message from a private key
