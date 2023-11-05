@@ -25,12 +25,15 @@ namespace MinaSignerTest
             string s = "5699199801648180374790470641706672153292517155570336605316501766706790369496";
             string r = "4571424820326310551923378628151304413301975448848148859180947955631174949047";
 
+            string pubKey = "B62qj5tBbE2xyu9k4r7G5npAGpbU1JDBkZm85WCVDMdCrHhS2v2Dy2y";
+
             Signature signature = Signature.Sign(message, privKey, Network.Testnet);
 
             Assert.Equal(BigInteger.Parse(s), signature.S);
             Assert.Equal(BigInteger.Parse(r), signature.R);
             output.WriteLine("signature " + signature.ToString());
             Assert.Equal(signatureBase58, signature.ToString());
+            Signature.Verify(signature, message, pubKey, Network.Testnet);
         }
 
 

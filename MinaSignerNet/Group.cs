@@ -33,5 +33,17 @@ namespace MinaSignerNet
             return projToAffine;
         }
 
+        public static Group FromPublickKey(PublicKey pubKey)
+        {
+            var x = pubKey.X;
+            var ySquared = x.Mul(x, Constants.P).Mul(x, Constants.P).Add(5, Constants.P);
+            var someY = ySquared.sqrt(Constants.P, Constants.pMinusOneOddFactor, Constants.twoadicRootFp);
+            var isTheRightY = pubKey.IsOdd == (!someY.IsEven);
+            var y = isTheRightY.BoolToBigInteger()
+            .Mul(someY, Constants.P)
+            .Add((!isTheRightY).BoolToBigInteger().Mul(someY.Negate(Constants.P), Constants.P), Constants.P);
+            return new Group() { X = x, Y = y };
+        }
+
     }
 }

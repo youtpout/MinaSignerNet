@@ -32,7 +32,7 @@ namespace MinaSignerNet
         {
             var bytesX = X.BigIntToBytes(32);
             List<byte> bytes = new List<byte>(bytesX);
-            // add version number (twice) in first place
+            // add version number (twice for tuple) in first place
             bytes.Insert(0, VersionNumber);
             bytes.Insert(0, VersionNumber);
             // odd in last place

@@ -54,6 +54,7 @@ namespace MinaSignerNet
         public static bool Verify(Signature signature, BigInteger message, string publicKey, Network networkId = Network.Mainnet)
         {
             var pubKey = new PublicKey(publicKey);
+            var groupPubKey = Group.FromPublickKey(pubKey);
             //var kPrime = DeriveNonce(message, pKey, networkId);
             //var groupPKey = Group.FromPrivateKey(pKey);
             //var groupKPrime = Group.FromNonce(kPrime);
