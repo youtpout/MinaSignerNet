@@ -1,7 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -10,13 +8,6 @@ namespace MinaSignerNet
 {
     public static class PoseidonHash
     {
-        public static PoseidonConfig PoseidonConfigKimchiFp;
-        static PoseidonHash()
-        {
-            var txt = File.ReadAllText("PoseidonParamsKimchiFp.json");
-            PoseidonConfigKimchiFp = JsonConvert.DeserializeObject<PoseidonConfig>(txt);
-        }
-
         public static BigInteger HashWithPrefix(string prefix, List<BigInteger> input)
         {
             List<BigInteger> initialState = new List<BigInteger> { BigInteger.Zero, BigInteger.Zero, BigInteger.Zero };
@@ -45,21 +36,21 @@ namespace MinaSignerNet
         {
             if (input.Count == 0)
             {
-                Permutation(state, PoseidonConfigKimchiFp);
+                Permutation(state, PoseidonConstant.PoseidonConfigKimchiFp);
                 return state;
             }
             // pad input with zeros so its length is a multiple of the rate
-            decimal n = Math.Ceiling((decimal)input.Count / PoseidonConfigKimchiFp.Rate) * PoseidonConfigKimchiFp.Rate;
+            decimal n = Math.Ceiling((decimal)input.Count / PoseidonConstant.PoseidonConfigKimchiFp.Rate) * PoseidonConstant.PoseidonConfigKimchiFp.Rate;
             var array = new BigInteger[(int)n];
             input.CopyTo(array, 0);
             // for every block of length `rate`, add block to the first `rate` elements of the state, and apply the permutation
-            for (var blockIndex = 0; blockIndex < n; blockIndex += PoseidonConfigKimchiFp.Rate)
+            for (var blockIndex = 0; blockIndex < n; blockIndex += PoseidonConstant.PoseidonConfigKimchiFp.Rate)
             {
-                for (var i = 0; i < PoseidonConfigKimchiFp.Rate; i++)
+                for (var i = 0; i < PoseidonConstant.PoseidonConfigKimchiFp.Rate; i++)
                 {
                     state[i] = FiniteField.Add(state[i], array[blockIndex + i],Constants.P);
                 }
-                Permutation(state, PoseidonConfigKimchiFp);
+                Permutation(state, PoseidonConstant.PoseidonConfigKimchiFp);
             }
 
             return state;
