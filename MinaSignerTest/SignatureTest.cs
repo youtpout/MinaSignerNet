@@ -1,9 +1,11 @@
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using MinaSignerNet;
 using System.Diagnostics;
 using System.Numerics;
 using System.Security.Principal;
 using System.Text;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace MinaSignerTest
 {
@@ -93,6 +95,39 @@ namespace MinaSignerTest
 
             //var isGood = Signature.Verify(signature, message, pubKey, Network.Testnet);
             //Assert.True(isGood);
+        }
+
+        [Fact]
+        public void SignHash()
+        {
+            PrivateKey player1 = new PrivateKey("EKEdP3NMwmpiVae99xL2VHqoWaStzMAzgUu6txxcuK7E9euZHV5D");
+            PrivateKey player2 = new PrivateKey("EKFdQ8aJ6jDViUKhQcaUrUAXcTuixCyBSFayS8xx9vCG8puUyGPG");
+            UInt64 timestamp = 1699392007;
+            BigInteger board = new BigInteger(70041);
+            string signPlayer1 = "7mXLHdqQ3VefCRMRTNovtFuCrcxHhTonrr7uf2suGdq5w5VndVaU9qJC1N8XvkjDT7LiK68QzFvEoh5Sv57HVLzPvbBLszb6";
+            string signPlayer2 = "7mXKuAv7aVew3GT6ttKrvrXeq7W6pqcizrK2EXH8EiUGvdrzq7er1oAEd1BGCXVaiGCwRfEY1ZZQrxFV1JePT27wfkrQoFvE";
+
+            BigInteger expectedHash = BigInteger.Parse("5122390387187251027573396826656293360819060210216551388750089509715309485255");
+
+            GameState state = new GameState()
+            {
+                Board = board,
+                NextIsPlayer2 = true,
+                StartTimeStamp = timestamp,
+                Player1 = player1.GetPublicKey(),
+                Player2 = player2.GetPublicKey()
+            };
+            Assert.Equal(expectedHash, state.Hash());
+
+            Signature signature1 = Signature.Sign(state.Hash(), player1.ToString(), Network.Testnet);
+            Signature signature2 = Signature.Sign(state.Hash(), player2.ToString(), Network.Testnet);
+            Assert.Equal(signPlayer1, signature1.ToString());
+            Assert.Equal(signPlayer2, signature2.ToString());
+
+            var isGood = Signature.Verify(signature1, state.Hash(), player1.GetPublicKey().ToString(), Network.Testnet);
+            Assert.True(isGood);
+            isGood = Signature.Verify(signature2, state.Hash(), player2.GetPublicKey().ToString(), Network.Testnet);
+            Assert.True(isGood);
         }
 
     }

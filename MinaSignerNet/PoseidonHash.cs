@@ -18,6 +18,12 @@ namespace MinaSignerNet
             return PoseidonUpdate(init, input).First();
         }
 
+        public static BigInteger Hash(List<BigInteger> input)
+        {
+            List<BigInteger> initialState = new List<BigInteger> { BigInteger.Zero, BigInteger.Zero, BigInteger.Zero };
+            return PoseidonUpdate(initialState, input).First();
+        }
+
         public static BigInteger PrefixToBigInteger(string prefix)
         {
             int fieldSize = 32;
