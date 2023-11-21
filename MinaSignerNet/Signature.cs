@@ -2,6 +2,7 @@
 using MinaSignerNet;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
@@ -18,7 +19,7 @@ namespace MinaSignerNet
         public BigInteger R { get; set; }
         public BigInteger S { get; set; }
 
-        /*
+
         /// <summary>
         /// Sign a message from a private key
         /// </summary>        
@@ -28,12 +29,20 @@ namespace MinaSignerNet
         /// <returns>Signature</returns>
         public static Signature Sign(string message, string privateKey, Network networkId = Network.Mainnet)
         {
-            //var msgByte = Encoding.UTF8.GetBytes(message);
-            //BigInteger msgConvert = msgByte.BytesToBigInt();
-            //return Sign(msgConvert, privateKey, networkId);
+            var msgByte = Encoding.UTF8.GetBytes(message);
+            var bits = msgByte.Select(x =>
+            {
+                var list = new List<byte> { x };
+                var byteTobit = list.BytesToBits();
+                byteTobit.Reverse();
+                return byteTobit;
+            }).SelectMany(x => x);
+            BigInteger hash = bits.BitsToBytes().BytesToBigInt();
+            Debug.WriteLine(hash.ToString());
+
             throw new NotImplementedException();
         }
-        */
+
 
         /// <summary>
         /// Sign a message from a private key
@@ -85,6 +94,19 @@ namespace MinaSignerNet
         public static bool Verify(Signature signature, BigInteger message, string publicKey, Network networkId = Network.Mainnet)
         {
             return Verify(signature, new List<BigInteger> { message }, publicKey, networkId);
+        }
+
+        /// <summary>
+        /// Verifies a signature created by Sign method, returns `true` if (and only if) the signature is valid. 
+        /// </summary>
+        /// <param name="signature">signature to check</param>
+        /// <param name="message">original bigIntger signed</param>
+        /// <param name="publicKey">public key in base58 format</param>
+        /// <param name="networkId">network id by default we use mainnet</param>
+        /// <returns>True if correct</returns>
+        public static bool Verify(Signature signature, string message, string publicKey, Network networkId = Network.Mainnet)
+        {
+            return Verify(signature, new List<BigInteger> { message.StringToByteArray().BytesToBigInt() }, publicKey, networkId);
         }
 
 
@@ -139,6 +161,31 @@ namespace MinaSignerNet
             var packedInput = input.PackToFields();
             var inputBits = packedInput.SelectMany(x => x.BigIntToBytes(32).BytesToBits().Take(255)).ToList();
             var inputBytes = inputBits.BitsToBytes();
+
+            Blake2BConfig config = new Blake2BConfig() { OutputSizeInBytes = 32 };
+            var outputBytes = Blake2B.ComputeHash(inputBytes.ToArray(), config);
+            // drop the top two bits to convert into a scalar field element
+            // (creates negligible bias because q = 2^254 + eps, eps << q)
+            outputBytes[outputBytes.Count() - 1] &= 0x3f;
+
+            return new BigInteger(outputBytes);
+        }
+
+        public static BigInteger DeriveNonceLegacy(List<bool> messages, PrivateKey privateKey, Network networkId)
+        {
+            var input = new HashInputLegacy();
+            var group = Group.FromPrivateKey(privateKey);
+
+            var network = new BigInteger((int)networkId);
+            input.Bits.AddRange(messages);
+            input.Fields.Add(group.X);
+            input.Fields.Add(group.Y);
+            input.Fields.Add(privateKey.S);          
+
+
+            //var packedInput = input.Bits.SelectMany(x=>x);
+            //var inputBits = packedInput.SelectMany(x => x.BigIntToBytes(32).BytesToBits().Take(255)).ToList();
+            var inputBytes = input.Bits.BitsToBytes();
 
             Blake2BConfig config = new Blake2BConfig() { OutputSizeInBytes = 32 };
             var outputBytes = Blake2B.ComputeHash(inputBytes.ToArray(), config);
