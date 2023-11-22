@@ -36,11 +36,8 @@ namespace MinaSignerNet
                 var byteTobit = list.BytesToBits();
                 byteTobit.Reverse();
                 return byteTobit;
-            }).SelectMany(x => x);
-            BigInteger hash = bits.BitsToBytes().BytesToBigInt();
-            Debug.WriteLine(hash.ToString());
-
-            throw new NotImplementedException();
+            }).SelectMany(x => x).ToList();
+            return SignLegacy(bits, privateKey, networkId);
         }
 
 
@@ -81,6 +78,29 @@ namespace MinaSignerNet
 
             return new Signature() { R = r, S = s };
         }
+
+        /// <summary>
+        /// Sign a message from a private key
+        /// </summary>        
+        /// <param name="message">list bigIntger to sign</param>
+        /// <param name="privateKey">private key in base58 format</param>
+        /// <param name="networkId">network id by default we use mainnet</param>
+        /// <returns>Signature</returns>
+        public static Signature SignLegacy(List<bool> messages, string privateKey, Network networkId = Network.Mainnet)
+        {
+            var pKey = new PrivateKey(privateKey);
+            var kPrime = DeriveNonceLegacy(messages, pKey, networkId);
+            var groupPKey = Group.FromPrivateKey(pKey);
+            var groupKPrime = Group.FromNonce(kPrime);
+            var r = groupKPrime.X;
+            var k = groupKPrime.Y.IsEven ? kPrime : FiniteField.Negate(kPrime, Constants.Q);
+            var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
+            // var e = PoseidonHash.HashWithPrefix(prefix, concat);
+            var s = FiniteField.Add(k, FiniteField.Mul(0, pKey.S, Constants.Q), Constants.Q);
+
+            return new Signature() { R = r, S = s };
+        }
+
 
 
         /// <summary>
@@ -175,17 +195,22 @@ namespace MinaSignerNet
         {
             var input = new HashInputLegacy();
             var group = Group.FromPrivateKey(privateKey);
+            Debug.WriteLine(group.ToString());
+            var publicKey = privateKey.GetPublicKey();
+            var scalarBits = privateKey.S.BigIntToBytes(32).BytesToBits();
 
-            var network = new BigInteger((int)networkId);
-            input.Bits.AddRange(messages);
+            var networkBytes = new List<Byte> { (byte)networkId };
+            var idBits = networkBytes.BytesToBits();
+            input.Bits.AddRange(scalarBits);
+            input.Bits.AddRange(idBits);
             input.Fields.Add(group.X);
             input.Fields.Add(group.Y);
-            input.Fields.Add(privateKey.S);          
+            //input.Fields.Add(privateKey.S);          
 
 
             //var packedInput = input.Bits.SelectMany(x=>x);
-            //var inputBits = packedInput.SelectMany(x => x.BigIntToBytes(32).BytesToBits().Take(255)).ToList();
-            var inputBytes = input.Bits.BitsToBytes();
+            var inputBits = input.Fields.SelectMany(x => x.BigIntToBytes(32).BytesToBits()).ToList();
+            var inputBytes = inputBits.BitsToBytes();
 
             Blake2BConfig config = new Blake2BConfig() { OutputSizeInBytes = 32 };
             var outputBytes = Blake2B.ComputeHash(inputBytes.ToArray(), config);
