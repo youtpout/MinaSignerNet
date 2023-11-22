@@ -201,6 +201,7 @@ namespace MinaSignerNet
 
             var networkBytes = new List<Byte> { (byte)networkId };
             var idBits = networkBytes.BytesToBits();
+            input.Bits.AddRange(messages);
             input.Bits.AddRange(scalarBits);
             input.Bits.AddRange(idBits);
             input.Fields.Add(group.X);
