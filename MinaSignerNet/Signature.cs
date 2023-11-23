@@ -100,7 +100,7 @@ namespace MinaSignerNet
             var k = groupKPrime.Y.IsEven ? kPrime : FiniteField.Negate(kPrime, Constants.Q);
             var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
             var e = PoseidonHash.HashMessageLegacy(messages, pKey, r, networkId);
-            var s = FiniteField.Add(k, FiniteField.Mul(0, pKey.S, Constants.Q), Constants.Q);
+            var s = FiniteField.Add(k, FiniteField.Mul(e, pKey.S, Constants.Q), Constants.Q);
 
             return new Signature() { R = r, S = s };
         }

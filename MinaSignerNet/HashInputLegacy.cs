@@ -24,6 +24,21 @@ namespace MinaSignerNet
             return inputBits;
         }
 
+        public List<BigInteger> GetFieldsLegacy()
+        {
+            var packedFields = new List<BigInteger>();
+            packedFields.AddRange(Fields);
+            int index = 0;
+            while (Bits.Count > index)
+            {
+                var fieldBits = Bits.Skip(index).Take(255).BitsToBytes().BytesToBigInt();
+                var field = fieldBits;
+                packedFields.Add(field);
+                index += 254;
+            }
+            return packedFields;
+        }
+
         public void Add(HashInputLegacy other)
         {
             this.Fields.AddRange(other.Fields);

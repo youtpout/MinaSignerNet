@@ -11,4 +11,10 @@
     <ProjectReference Include="..\MinaSignerNet\MinaSignerNet.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="poseidon-const.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

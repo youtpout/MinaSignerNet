@@ -15,8 +15,8 @@ namespace MinaSignerNet
             var prefixBigInteger = PrefixToBigInteger(prefix);
             var list = new List<BigInteger> { prefixBigInteger };
             // salt prefix
-            var init = PoseidonUpdate(initialState, list);
-            return PoseidonUpdate(init, input).First();
+            var init = PoseidonUpdate(initialState, list, PoseidonConstant.PoseidonConfigKimchiFp);
+            return PoseidonUpdate(init, input, PoseidonConstant.PoseidonConfigKimchiFp).First();
         }
 
         public static BigInteger HashWithPrefixLegacy(string prefix, List<BigInteger> input)
@@ -25,8 +25,8 @@ namespace MinaSignerNet
             var prefixBigInteger = PrefixToBigInteger(prefix);
             var list = new List<BigInteger> { prefixBigInteger };
             // salt prefix
-            var init = PoseidonUpdate(initialState, list);
-            return PoseidonUpdate(init, input).First();
+            var init = PoseidonUpdate(initialState, list, PoseidonConstant.PoseidonConfigLegacyFp);
+            return PoseidonUpdate(init, input,PoseidonConstant.PoseidonConfigLegacyFp).First();
         }
 
         public static BigInteger HashMessageLegacy(List<bool> messages, PrivateKey privateKey, BigInteger r, Network networkId)
@@ -41,20 +41,18 @@ namespace MinaSignerNet
             var networkBytes = new List<Byte> { (byte)networkId };
             var idBits = networkBytes.BytesToBits(8);
             input.Bits.AddRange(messages);
-            input.Bits.AddRange(scalarBits);
-            input.Bits.AddRange(idBits);
             input.Fields.Add(group.X);
             input.Fields.Add(group.Y);
             input.Fields.Add(r);
 
             var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
-            return HashWithPrefixLegacy(prefix, input.Fields);
+            return HashWithPrefixLegacy(prefix, input.GetFieldsLegacy());
         }
 
         public static BigInteger Hash(List<BigInteger> input)
         {
             List<BigInteger> initialState = new List<BigInteger> { BigInteger.Zero, BigInteger.Zero, BigInteger.Zero };
-            return PoseidonUpdate(initialState, input).First();
+            return PoseidonUpdate(initialState, input, PoseidonConstant.PoseidonConfigKimchiFp).First();
         }
 
         public static BigInteger PrefixToBigInteger(string prefix)
@@ -71,29 +69,31 @@ namespace MinaSignerNet
             return array.BytesToBigInt();
         }
 
-        public static List<BigInteger> PoseidonUpdate(List<BigInteger> state, List<BigInteger> input)
+        public static List<BigInteger> PoseidonUpdate(List<BigInteger> state, List<BigInteger> input, PoseidonConfig config)
         {
             if (input.Count == 0)
             {
-                Permutation(state, PoseidonConstant.PoseidonConfigKimchiFp);
+                Permutation(state, config);
                 return state;
             }
             // pad input with zeros so its length is a multiple of the rate
-            decimal n = Math.Ceiling((decimal)input.Count / PoseidonConstant.PoseidonConfigKimchiFp.Rate) * PoseidonConstant.PoseidonConfigKimchiFp.Rate;
+            decimal n = Math.Ceiling((decimal)input.Count / config.Rate) * config.Rate;
             var array = new BigInteger[(int)n];
             input.CopyTo(array, 0);
             // for every block of length `rate`, add block to the first `rate` elements of the state, and apply the permutation
-            for (var blockIndex = 0; blockIndex < n; blockIndex += PoseidonConstant.PoseidonConfigKimchiFp.Rate)
+            for (var blockIndex = 0; blockIndex < n; blockIndex += config.Rate)
             {
-                for (var i = 0; i < PoseidonConstant.PoseidonConfigKimchiFp.Rate; i++)
+                for (var i = 0; i < config.Rate; i++)
                 {
                     state[i] = FiniteField.Add(state[i], array[blockIndex + i], Constants.P);
                 }
-                Permutation(state, PoseidonConstant.PoseidonConfigKimchiFp);
+                Permutation(state, config);
             }
 
             return state;
         }
+
+
         public static void Permutation(List<BigInteger> state, PoseidonConfig config)
         {
             // special case: initial round constant
