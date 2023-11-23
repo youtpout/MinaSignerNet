@@ -72,7 +72,13 @@ namespace MinaSignerNet
             return value ? BigInteger.One : BigInteger.Zero;
         }
 
-        public static List<bool> BytesToBits(this IEnumerable<byte> bytes)
+        /// <summary>
+        /// Convert bytes array to bool array
+        /// </summary>
+        /// <param name="bytes">input array</param>
+        /// <param name="maxSize">max size of output array</param>
+        /// <returns>the array in bool format</returns>
+        public static List<bool> BytesToBits(this IEnumerable<byte> bytes, int maxSize = int.MaxValue)
         {
             return bytes
               .SelectMany((b) =>
@@ -84,7 +90,7 @@ namespace MinaSignerNet
                       b >>= 1;
                   }
                   return bits;
-              }).ToList();
+              }).Take(maxSize).ToList();
         }
 
         public static List<byte> BitsToBytes(this IEnumerable<bool> bits)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -16,6 +17,38 @@ namespace MinaSignerNet
             // salt prefix
             var init = PoseidonUpdate(initialState, list);
             return PoseidonUpdate(init, input).First();
+        }
+
+        public static BigInteger HashWithPrefixLegacy(string prefix, List<BigInteger> input)
+        {
+            List<BigInteger> initialState = new List<BigInteger> { BigInteger.Zero, BigInteger.Zero, BigInteger.Zero };
+            var prefixBigInteger = PrefixToBigInteger(prefix);
+            var list = new List<BigInteger> { prefixBigInteger };
+            // salt prefix
+            var init = PoseidonUpdate(initialState, list);
+            return PoseidonUpdate(init, input).First();
+        }
+
+        public static BigInteger HashMessageLegacy(List<bool> messages, PrivateKey privateKey, BigInteger r, Network networkId)
+        {
+
+            var input = new HashInputLegacy();
+            var group = Group.FromPrivateKey(privateKey);
+            Debug.WriteLine(group.ToString());
+            var publicKey = privateKey.GetPublicKey();
+            var scalarBits = privateKey.S.BigIntToBytes(32).BytesToBits(255);
+
+            var networkBytes = new List<Byte> { (byte)networkId };
+            var idBits = networkBytes.BytesToBits(8);
+            input.Bits.AddRange(messages);
+            input.Bits.AddRange(scalarBits);
+            input.Bits.AddRange(idBits);
+            input.Fields.Add(group.X);
+            input.Fields.Add(group.Y);
+            input.Fields.Add(r);
+
+            var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
+            return HashWithPrefixLegacy(prefix, input.Fields);
         }
 
         public static BigInteger Hash(List<BigInteger> input)
@@ -54,7 +87,7 @@ namespace MinaSignerNet
             {
                 for (var i = 0; i < PoseidonConstant.PoseidonConfigKimchiFp.Rate; i++)
                 {
-                    state[i] = FiniteField.Add(state[i], array[blockIndex + i],Constants.P);
+                    state[i] = FiniteField.Add(state[i], array[blockIndex + i], Constants.P);
                 }
                 Permutation(state, PoseidonConstant.PoseidonConfigKimchiFp);
             }

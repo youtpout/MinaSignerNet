@@ -90,12 +90,16 @@ namespace MinaSignerNet
         {
             var pKey = new PrivateKey(privateKey);
             var kPrime = DeriveNonceLegacy(messages, pKey, networkId);
+            if (kPrime == BigInteger.Zero)
+            {
+                throw new Exception("sign: derived nonce is 0");
+            }
             var groupPKey = Group.FromPrivateKey(pKey);
             var groupKPrime = Group.FromNonce(kPrime);
             var r = groupKPrime.X;
             var k = groupKPrime.Y.IsEven ? kPrime : FiniteField.Negate(kPrime, Constants.Q);
             var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
-            // var e = PoseidonHash.HashWithPrefix(prefix, concat);
+            var e = PoseidonHash.HashMessageLegacy(messages, pKey, r, networkId);
             var s = FiniteField.Add(k, FiniteField.Mul(0, pKey.S, Constants.Q), Constants.Q);
 
             return new Signature() { R = r, S = s };
@@ -197,10 +201,10 @@ namespace MinaSignerNet
             var group = Group.FromPrivateKey(privateKey);
             Debug.WriteLine(group.ToString());
             var publicKey = privateKey.GetPublicKey();
-            var scalarBits = privateKey.S.BigIntToBytes(32).BytesToBits();
+            var scalarBits = privateKey.S.BigIntToBytes(32).BytesToBits(255);
 
             var networkBytes = new List<Byte> { (byte)networkId };
-            var idBits = networkBytes.BytesToBits();
+            var idBits = networkBytes.BytesToBits(8);
             input.Bits.AddRange(messages);
             input.Bits.AddRange(scalarBits);
             input.Bits.AddRange(idBits);
@@ -210,7 +214,7 @@ namespace MinaSignerNet
 
 
             //var packedInput = input.Bits.SelectMany(x=>x);
-            var inputBits = input.Fields.SelectMany(x => x.BigIntToBytes(32).BytesToBits()).ToList();
+            var inputBits = input.GetBitsLegacy();
             var inputBytes = inputBits.BitsToBytes();
 
             Blake2BConfig config = new Blake2BConfig() { OutputSizeInBytes = 32 };
