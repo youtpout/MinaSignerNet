@@ -124,13 +124,21 @@ namespace MinaSignerNet
         /// Verifies a signature created by Sign method, returns `true` if (and only if) the signature is valid. 
         /// </summary>
         /// <param name="signature">signature to check</param>
-        /// <param name="message">original bigIntger signed</param>
+        /// <param name="message">original string signed</param>
         /// <param name="publicKey">public key in base58 format</param>
         /// <param name="networkId">network id by default we use mainnet</param>
         /// <returns>True if correct</returns>
         public static bool Verify(Signature signature, string message, string publicKey, Network networkId = Network.Mainnet)
         {
-            return Verify(signature, new List<BigInteger> { message.StringToByteArray().BytesToBigInt() }, publicKey, networkId);
+            var msgByte = Encoding.UTF8.GetBytes(message);
+            var bits = msgByte.Select(x =>
+            {
+                var list = new List<byte> { x };
+                var byteTobit = list.BytesToBits();
+                byteTobit.Reverse();
+                return byteTobit;
+            }).SelectMany(x => x).ToList();
+            return VerifyLegacy(signature, bits, publicKey, networkId);
         }
 
 
@@ -152,6 +160,29 @@ namespace MinaSignerNet
             concat.Add(signature.R);
             var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
             var e = PoseidonHash.HashWithPrefix(prefix, concat);
+            var scale = EllipticCurve.ProjectiveScale(Constants.PallasGeneratorProjective, signature.S, Constants.P);
+            var groupProj = new GroupProjective(groupPubKey);
+            var scalePubKey = EllipticCurve.ProjectiveScale(groupProj, e, Constants.P);
+            var R = EllipticCurve.ProjectiveSub(scale, scalePubKey, Constants.P);
+            try
+            {
+                // if `R` is infinity, Group.fromProjective throws an error, so `verify` returns false
+                Group grpFinal = R.ToGroup();
+                return grpFinal.Y.IsEven && grpFinal.X == signature.R;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+        public static bool VerifyLegacy(Signature signature, List<bool> messages, string publicKey, Network networkId = Network.Mainnet)
+        {
+            var pubKey = new PublicKey(publicKey);
+            var groupPubKey = Group.FromPublickKey(pubKey);
+
+            var e = PoseidonHash.HashMessageLegacy(messages, groupPubKey, signature.R, networkId);
             var scale = EllipticCurve.ProjectiveScale(Constants.PallasGeneratorProjective, signature.S, Constants.P);
             var groupProj = new GroupProjective(groupPubKey);
             var scalePubKey = EllipticCurve.ProjectiveScale(groupProj, e, Constants.P);

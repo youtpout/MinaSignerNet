@@ -34,15 +34,21 @@ namespace MinaSignerNet
 
             var input = new HashInputLegacy();
             var group = Group.FromPrivateKey(privateKey);
-            Debug.WriteLine(group.ToString());
-            var publicKey = privateKey.GetPublicKey();
-            var scalarBits = privateKey.S.BigIntToBytes(32).BytesToBits(255);
-
-            var networkBytes = new List<Byte> { (byte)networkId };
-            var idBits = networkBytes.BytesToBits(8);
             input.Bits.AddRange(messages);
             input.Fields.Add(group.X);
             input.Fields.Add(group.Y);
+            input.Fields.Add(r);
+
+            var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
+            return HashWithPrefixLegacy(prefix, input.GetFieldsLegacy());
+        }
+
+        public static BigInteger HashMessageLegacy(List<bool> messages, Group groupPublicKey, BigInteger r, Network networkId)
+        {
+            var input = new HashInputLegacy();
+            input.Bits.AddRange(messages);
+            input.Fields.Add(groupPublicKey.X);
+            input.Fields.Add(groupPublicKey.Y);
             input.Fields.Add(r);
 
             var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
