@@ -152,5 +152,14 @@ namespace MinaSignerTest
             Assert.True(isGood);
         }
 
+        [Fact]
+        public void Base58()
+        {
+            string base58 = "7mXFRCcMzD4Rzsmp5QQaHQFpHyDaEGrMExmu7hxSrjBXGAznVppDoFD763F8nNvrK7tsRyqRUqrKJPYFmV3eWnYs3ig4613H";
+            var sign = new Signature(base58);
+
+            Assert.Equal(base58, sign.ToString());
+        }
+
     }
 }

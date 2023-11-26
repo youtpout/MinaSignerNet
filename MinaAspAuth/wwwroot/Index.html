@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+</head>
+<body>
+    <h3>Hello and welcome to mina Asp test auth</h3>
+    <p>In this project I show you how to implement auh in Asp.net server with your mina wallet (Tested with Auro Wallet)</p>
+    <p id="status"></p>
+    <button onclick="requestAuth()">Request Auth</button>
+</body>
+<script>
+    var statusP = document.getElementById("status");
+    async function requestAuth() {
+        statusP.innerText = "Requesting auth";
+        const account = await window.mina.requestAccounts();
+        var auth = await fetch("api/auth/requestconnection?account=" + account[0]);
+        var result = await auth.json();
+        console.log("result request", result);
+        statusP.innerText = "Waiting for signature";
+        var signContent = {
+            message: result.message
+        }
+
+        const signResult = await window.mina.signMessage(signContent);
+        var data = {
+            message: result.message,
+            signer: account[0],
+            field: signResult.signature.field,
+            scalar: signResult.signature.scalar
+        }
+        var createToken = await fetch("api/auth/createtoken", {
+            method: "POST", body: JSON.stringify(data), headers: {
+                'Accept': 'application/json; charset=utf-8',
+                'Content-Type': 'application/json;charset=UTF-8'
+            }
+        });
+        var tokenResult = await createToken.json();
+        console.log("tokenResult", tokenResult);
+
+    }
+</script>
+</html>

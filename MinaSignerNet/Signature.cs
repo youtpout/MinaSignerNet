@@ -1,12 +1,9 @@
 ﻿using Blake2Core;
-using MinaSignerNet;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
 using System.Numerics;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace MinaSignerNet
@@ -18,6 +15,19 @@ namespace MinaSignerNet
         public const byte VersionByte = 154;
         public BigInteger R { get; set; }
         public BigInteger S { get; set; }
+
+        public Signature()
+        {
+
+        }
+
+        public Signature(string base58)
+        {
+            var decoded = base58.FromBase58Check(VersionByte);
+            // we ignore the 2 first number who were version number and the last who is odd indicator
+            R = decoded.Skip(1).Take(32).BytesToBigInt();
+            S = decoded.Skip(33).Take(32).BytesToBigInt();
+        }
 
 
         /// <summary>
