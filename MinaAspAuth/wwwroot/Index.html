@@ -7,12 +7,17 @@
 </head>
 <body>
     <h3>Hello and welcome to mina Asp test auth</h3>
-    <p>In this project I show you how to implement auh in Asp.net server with your mina wallet (Tested with Auro Wallet)</p>
+    <p>In this project I show you how to implement auth in Asp.net server with your mina wallet (Tested with Auro Wallet)</p>
     <p id="status"></p>
     <button onclick="requestAuth()">Request Auth</button>
+    <p>Once authenticated you can call a endpoint who needs authentification</p>
+    <button onclick="getWeather()">Get randow weather</button>
+    <p id="weather"></p>
 </body>
 <script>
     var statusP = document.getElementById("status");
+    var weatherP = document.getElementById("weather");
+    var token;
     async function requestAuth() {
         statusP.innerText = "Requesting auth";
         const account = await window.mina.requestAccounts();
@@ -22,9 +27,10 @@
         statusP.innerText = "Waiting for signature";
         var signContent = {
             message: result.message
-        }
+        };
 
         const signResult = await window.mina.signMessage(signContent);
+        console.log("sign result", signResult);
         var data = {
             message: result.message,
             signer: account[0],
@@ -38,7 +44,22 @@
             }
         });
         var tokenResult = await createToken.json();
+        token = tokenResult.token;
         console.log("tokenResult", tokenResult);
+        statusP.innerText = "Correctly authenticated bearer token : " + token;
+    }
+
+    async function getWeather() {
+        try {
+            weatherP.innerText = "Requesting weather";
+            var weather = await fetch("api/weatherforecast", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            var result = await weather.json();
+            weatherP.innerText = JSON.stringify(result);
+        } catch (e) {
+            weatherP.innerText = e.toString();
+        }
 
     }
 </script>

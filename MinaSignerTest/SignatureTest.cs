@@ -98,6 +98,31 @@ namespace MinaSignerTest
         }
 
         [Fact]
+        public void SignAuthString()
+        {
+            string privKey = "EKDtctFSZuDJ8SXuWcbXHot57gZDtu7dNSAZNZvXek8KF8q6jV8K";
+            string message = "Welcome to the mina asp auth, sign this message to authenticate b715ed91-2dfb-4d4b-a181-4a1257e3c293";
+            // string signatureBase58 = "7mXNcsg23PYDdziVuh2s9skr3fx3PV9UGxAtzRf4KwLmwVnypCPGwmUsRW6TmTKTLTP3KerhfdYWRLWtFGmFe2J6CF4GByvv";
+            string s = "28578775384902215803732967986618358826613085431816210932507129838504505976839";
+            string r = "21006453149584518944039430027732441116924904780278919862860676381801052139241";
+            string signBase58 = "7mXV946Kz1b7u2DK9KwAepQUwDyH98q5Z7H5Z3tZtBEDDWzQJuTVTAeBQGXuRk6x62Z6fRsjp7bRQWQ53WRYimEWQEpvU67y";
+
+            string pubKey = "B62qj5tBbE2xyu9k4r7G5npAGpbU1JDBkZm85WCVDMdCrHhS2v2Dy2y";
+
+            Signature signature = Signature.Sign(message, privKey, Network.Testnet);
+
+            Assert.Equal(BigInteger.Parse(s), signature.S);
+            Assert.Equal(BigInteger.Parse(r), signature.R);
+            output.WriteLine("signature " + signature.ToString());
+            // Assert.Equal(signatureBase58, signature.ToString());
+
+            var isGood = Signature.Verify(signature, message, pubKey, Network.Testnet);
+            Assert.True(isGood);
+
+            Assert.Equal(signBase58, signature.ToString());
+        }
+
+        [Fact]
         public void SignStringVerificationFailed()
         {
             string privKey = "EKDtctFSZuDJ8SXuWcbXHot57gZDtu7dNSAZNZvXek8KF8q6jV8K";

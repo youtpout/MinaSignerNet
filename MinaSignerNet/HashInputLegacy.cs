@@ -31,7 +31,7 @@ namespace MinaSignerNet
             int index = 0;
             while (Bits.Count > index)
             {
-                var fieldBits = Bits.Skip(index).Take(255).BitsToBytes().BytesToBigInt();
+                var fieldBits = Bits.Skip(index).Take(254).BitsToBytes().BytesToBigInt();
                 var field = fieldBits;
                 packedFields.Add(field);
                 index += 254;
