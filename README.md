@@ -46,7 +46,7 @@ The method toString from Signature/PublicKey/PrivateKey return the base58 encode
 
 ## Auth Exemple
 
-MinaAspAuth is an asp.net Api project whi implement mina signer to authenticate user based on signature generate by a wallet like Auro Wallet.
+MinaAspAuth is an asp.net Api project who implements mina signer to authenticate user based on signature generate by a wallet like Auro Wallet.
 
 You can see how to generate a bearer Token based on signature and account address, usefull to implement product/service for Mina users.
 
