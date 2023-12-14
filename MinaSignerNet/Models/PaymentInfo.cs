@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 
-namespace MinaSignerNet
+namespace MinaSignerNet.Models
 {
     public class PaymentInfo
     {
         public string From { get; set; }
         public string To { get; set; }
-        public BigInteger Amount { get; set; }
-        public BigInteger Fee { get; set; }
-        public BigInteger Nonce { get; set; }
+        public UInt64 Amount { get; set; }
+        public UInt64 Fee { get; set; }
+        public UInt32 Nonce { get; set; }
     }
 }

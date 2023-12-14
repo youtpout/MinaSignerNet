@@ -1,4 +1,5 @@
 ﻿using Blake2Core;
+using MinaSignerNet.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
