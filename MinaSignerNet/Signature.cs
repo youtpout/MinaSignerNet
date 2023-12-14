@@ -116,6 +116,20 @@ namespace MinaSignerNet
         }
 
 
+        /// <summary>
+        /// Sign a payment transaction from a privateKey
+        /// </summary>
+        /// <param name="paymentInfo">payment info (from,to,price,amount,nonce)</param>
+        /// <param name="privateKey">private key in base58 format</param>
+        /// <param name="networkId">network id by default we use mainnet</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static Signature SignPayment(PaymentInfo paymentInfo, string privateKey, Network networkId = Network.Mainnet)
+        {
+            var pKey = new PrivateKey(privateKey);           
+
+            return new Signature();
+        }
 
         /// <summary>
         /// Verifies a signature created by Sign method, returns `true` if (and only if) the signature is valid. 
