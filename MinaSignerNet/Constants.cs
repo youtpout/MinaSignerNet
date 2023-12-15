@@ -18,6 +18,18 @@ namespace MinaSignerNet
         public const string SignatureMainnet = "MinaSignatureMainnet";
         public const string SignatureTestnet = "CodaSignature*******";
 
+        public static List<bool> LegacyTokenId = new List<bool>() { };
+
+        static Constants()
+        {
+            // const legacyTokenId = [true, ...Array<boolean>(63).fill(false)];
+            LegacyTokenId.Add(true);
+            for (int i = 0; i < 63; i++)
+            {
+                LegacyTokenId.Add(false);
+            }
+        }
+
         public static GroupProjective PallasGeneratorProjective = new GroupProjective()
         {
             X = BigInteger.One,
