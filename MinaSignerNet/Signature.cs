@@ -127,8 +127,15 @@ namespace MinaSignerNet
         /// <exception cref="Exception"></exception>
         public static Signature SignPayment(PaymentInfo paymentInfo, string privateKey, Network networkId = Network.Mainnet)
         {
-            var pKey = new PrivateKey(privateKey);           
+            var pKey = new PrivateKey(privateKey);
+            UserCommand userCommand = new UserCommand(paymentInfo);
 
+
+            return SignUserCommand(userCommand, privateKey, networkId);
+        }
+
+        public static Signature SignUserCommand(UserCommand userCommand, string privateKey, Network networkId = Network.Mainnet)
+        {
             return new Signature();
         }
 
