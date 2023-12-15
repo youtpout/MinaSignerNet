@@ -35,8 +35,12 @@ namespace MinaSignerNet.Models
 
         public BigInteger GetInputLegacy()
         {
-            var array = new List<BigInteger>();
-            // todo implement hasinputlegacy
+            var array = new List<bool>();
+            var feeBits = new BigInteger(Common.Fee).BigIntToBytes(255).BytesToBits();
+            var legacyBits = Constants.LegacyTokenId;
+            var key = Common.FeePayer;
+           
+            // todo implement hashinputlegacy
             return new BigInteger();
         }
     }
