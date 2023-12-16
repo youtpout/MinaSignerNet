@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using MinaSignerNet.Utils;
 
 namespace MinaSignerNet
 {
@@ -25,6 +26,14 @@ namespace MinaSignerNet
             // we ignore the 2 first number who were version number and the last who is odd indicator
             X = decoded.Skip(2).Take(32).BytesToBigInt();
             IsOdd = decoded.Last() == 0b1;
+        }
+
+        public HashInputLegacy ToHashInputLegacy()
+        {
+            var hashInput = new HashInputLegacy();
+            hashInput.Bits.Add(IsOdd);
+            hashInput.Fields.Add(X);
+            return hashInput;
         }
 
 

@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace MinaSignerNet
+namespace MinaSignerNet.Utils
 {
     public static class Helpers
     {
@@ -29,7 +29,7 @@ namespace MinaSignerNet
             {
                 inputBytes[j] = Convert.ToByte(input[2 * j] + input[2 * j + 1]);
             }
-            return BytesToBigInt(inputBytes);
+            return inputBytes.BytesToBigInt();
         }
 
         /**
@@ -45,7 +45,7 @@ namespace MinaSignerNet
             var bytes = new byte[length];
             for (var i = 0; i < length; i++, x >>= 8)
             {
-                bytes[i] = ((byte)(x & 255));
+                bytes[i] = (byte)(x & 255);
             }
             if (x > BigInteger.Zero)
             {
@@ -83,7 +83,7 @@ namespace MinaSignerNet
             return bytes
               .SelectMany((b) =>
               {
-                  var bits = new Boolean[8];
+                  var bits = new bool[8];
                   for (var i = 0; i < 8; i++)
                   {
                       bits[i] = (b & 1) == 1;
@@ -143,13 +143,13 @@ namespace MinaSignerNet
 
         public static BigInteger Shift(this BigInteger s)
         {
-            return FiniteField.Add(FiniteField.Add(s, s, Constants.P), Constants.ScalarShift, Constants.P);
+            return s.Add(s, Constants.P).Add(Constants.ScalarShift, Constants.P);
         }
 
         public static BigInteger Unshift(this BigInteger s)
         {
-            var sub = FiniteField.Sub(s, Constants.ScalarShift, Constants.P);
-            var mul = FiniteField.Mul(sub, Constants.OneHalf, Constants.P);
+            var sub = s.Sub(Constants.ScalarShift, Constants.P);
+            var mul = sub.Mul(Constants.OneHalf, Constants.P);
             return mul;
         }
 

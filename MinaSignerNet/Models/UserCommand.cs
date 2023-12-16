@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using MinaSignerNet.Utils;
 
 namespace MinaSignerNet.Models
 {
@@ -36,10 +37,13 @@ namespace MinaSignerNet.Models
         public BigInteger GetInputLegacy()
         {
             var array = new List<bool>();
-            var feeBits = new BigInteger(Common.Fee).BigIntToBytes(255).BytesToBits();
+            var feeBits = Common.Fee.ToBits();
             var legacyBits = Constants.LegacyTokenId;
-            var key = Common.FeePayer;
-           
+            var feePayer = Common.FeePayer.ToHashInputLegacy();
+            var nonce = Common.Nonce.ToBits();
+            var validUntil = Common.ValidUntil.ToBits();
+            var memo = Common.Memo.ToBits();
+
             // todo implement hashinputlegacy
             return new BigInteger();
         }

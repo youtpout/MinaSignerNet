@@ -150,8 +150,8 @@ namespace MinaSignerTest
         {
             string privKey = "EKDtctFSZuDJ8SXuWcbXHot57gZDtu7dNSAZNZvXek8KF8q6jV8K";
             // string signatureBase58 = "7mXNcsg23PYDdziVuh2s9skr3fx3PV9UGxAtzRf4KwLmwVnypCPGwmUsRW6TmTKTLTP3KerhfdYWRLWtFGmFe2J6CF4GByvv";
-            string s = "19279172484983877842873125350640644914207208942985454361573182263566890841055";
-            string r = "7649485789535474315380372813781082278623214142094026935246826784404761533129";
+            string s = "2700659290953936399118958093045242625658868329938221889486643909026964391404";
+            string r = "28182486579702831857711270900219008886762343847884926345716879056365430444653";
 
             string pubKey = "B62qj5tBbE2xyu9k4r7G5npAGpbU1JDBkZm85WCVDMdCrHhS2v2Dy2y";
             string toKey = "B62qkR9Har8apahum18KggGtHbAiumoQ65b6uH4vukaqdh3LZCA9jt5";
@@ -162,7 +162,8 @@ namespace MinaSignerTest
                 Fee = 1,
                 Nonce = 0,
                 From = pubKey,
-                To = toKey
+                To = toKey,
+                ValidUntil = 1702800000
             };
 
             Signature signature = Signature.SignPayment(paymentInfo, privKey, Network.Testnet);

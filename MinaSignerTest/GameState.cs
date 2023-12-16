@@ -1,4 +1,5 @@
 ﻿using MinaSignerNet;
+using MinaSignerNet.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
