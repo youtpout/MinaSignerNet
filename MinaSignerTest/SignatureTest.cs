@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using MinaSignerNet;
+using MinaSignerNet.Models;
 using System.Diagnostics;
 using System.Numerics;
 using System.Security.Principal;
@@ -142,6 +143,37 @@ namespace MinaSignerTest
 
             var isGood = Signature.Verify(signature, message + "different", pubKey, Network.Testnet);
             Assert.False(isGood);
+        }
+
+        [Fact]
+        public void SignPayment()
+        {
+            string privKey = "EKDtctFSZuDJ8SXuWcbXHot57gZDtu7dNSAZNZvXek8KF8q6jV8K";
+            // string signatureBase58 = "7mXNcsg23PYDdziVuh2s9skr3fx3PV9UGxAtzRf4KwLmwVnypCPGwmUsRW6TmTKTLTP3KerhfdYWRLWtFGmFe2J6CF4GByvv";
+            string s = "19279172484983877842873125350640644914207208942985454361573182263566890841055";
+            string r = "7649485789535474315380372813781082278623214142094026935246826784404761533129";
+
+            string pubKey = "B62qj5tBbE2xyu9k4r7G5npAGpbU1JDBkZm85WCVDMdCrHhS2v2Dy2y";
+            string toKey = "B62qkR9Har8apahum18KggGtHbAiumoQ65b6uH4vukaqdh3LZCA9jt5";
+
+            var paymentInfo = new PaymentInfo()
+            {
+                Amount = 5,
+                Fee = 1,
+                Nonce = 0,
+                From = pubKey,
+                To = toKey
+            };
+
+            Signature signature = Signature.SignPayment(paymentInfo, privKey, Network.Testnet);
+
+            Assert.Equal(BigInteger.Parse(s), signature.S);
+            Assert.Equal(BigInteger.Parse(r), signature.R);
+            output.WriteLine("signature " + signature.ToString());
+            // Assert.Equal(signatureBase58, signature.ToString());
+
+            //var isGood = Signature.Verify(signature, message + "different", pubKey, Network.Testnet);
+            //Assert.False(isGood);
         }
 
         [Fact]
