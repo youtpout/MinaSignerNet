@@ -34,9 +34,9 @@ namespace MinaSignerNet.Models
 
         }
 
-        public BigInteger GetInputLegacy()
+        public HashInputLegacy GetInputLegacy()
         {
-            var array = new List<bool>();
+            // common
             var feeBits = Common.Fee.ToBits();
             var legacyBits = Constants.LegacyTokenId;
             var feePayer = Common.FeePayer.ToHashInputLegacy();
@@ -44,8 +44,31 @@ namespace MinaSignerNet.Models
             var validUntil = Common.ValidUntil.ToBits();
             var memo = Common.Memo.ToBits();
 
-            // todo implement hashinputlegacy
-            return new BigInteger();
+            var hashInputCommon = new HashInputLegacy();
+            hashInputCommon.Bits.AddRange(feeBits);
+            hashInputCommon.Bits.AddRange(legacyBits);
+            hashInputCommon.Add(feePayer);
+            hashInputCommon.Bits.AddRange(nonce);
+            hashInputCommon.Bits.AddRange(validUntil);
+            hashInputCommon.Bits.AddRange(memo);
+
+            // body
+            var tag = Body.Tag.ToBits();
+            var from = Body.Source.ToHashInputLegacy();
+            var to = Body.Receiver.ToHashInputLegacy();
+            var amount = Body.Amount.ToBits();
+
+            var hashInputBody = new HashInputLegacy();
+            hashInputBody.Bits.AddRange(tag);
+            hashInputBody.Add(from);
+            hashInputBody.Add(to);
+            hashInputBody.Bits.AddRange(legacyBits);
+            hashInputBody.Bits.AddRange(amount);
+            hashInputBody.Bits.Add(false);  // token_locked
+
+
+            hashInputCommon.Add(hashInputBody);
+            return hashInputCommon;
         }
     }
 }

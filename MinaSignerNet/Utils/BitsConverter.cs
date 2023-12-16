@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MinaSignerNet.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -40,6 +41,12 @@ namespace MinaSignerNet.Utils
         public static List<bool> ToBits(this bool boolValue)
         {
             return new List<bool> { boolValue };
+        }
+
+        public static List<bool> ToBits(this TagEnum tagValue)
+        {
+            var val = tagValue == TagEnum.Payment ? 0 : 1;
+            return new List<bool> { (val & 4) > 0, (val & 2) > 0, (val & 1) > 0 };
         }
     }
 }

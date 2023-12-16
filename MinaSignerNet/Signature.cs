@@ -130,6 +130,7 @@ namespace MinaSignerNet
         {
             var pKey = new PrivateKey(privateKey);
             UserCommand userCommand = new UserCommand(paymentInfo);
+            var hashInput = userCommand.GetInputLegacy();
 
 
             return SignUserCommand(userCommand, privateKey, networkId);
