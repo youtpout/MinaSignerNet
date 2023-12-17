@@ -30,12 +30,9 @@ namespace MinaSignerNet
             return PoseidonUpdate(init, input,PoseidonConstant.PoseidonConfigLegacyFp).First();
         }
 
-        public static BigInteger HashMessageLegacy(List<bool> messages, PrivateKey privateKey, BigInteger r, Network networkId)
+        public static BigInteger HashMessageLegacy(HashInputLegacy input, PrivateKey privateKey, BigInteger r, Network networkId)
         {
-
-            var input = new HashInputLegacy();
             var group = Group.FromPrivateKey(privateKey);
-            input.Bits.AddRange(messages);
             input.Fields.Add(group.X);
             input.Fields.Add(group.Y);
             input.Fields.Add(r);

@@ -49,7 +49,9 @@ namespace MinaSignerNet
                 byteTobit.Reverse();
                 return byteTobit;
             }).SelectMany(x => x).ToList();
-            return SignLegacy(bits, privateKey, networkId);
+            var input = new HashInputLegacy();
+            input.Bits.AddRange(bits);
+            return SignLegacy(input, privateKey, networkId);
         }
 
 
@@ -94,14 +96,14 @@ namespace MinaSignerNet
         /// <summary>
         /// Sign a message from a private key
         /// </summary>        
-        /// <param name="message">list bigIntger to sign</param>
+        /// <param name="hashInput">hashInput to sign</param>
         /// <param name="privateKey">private key in base58 format</param>
         /// <param name="networkId">network id by default we use mainnet</param>
         /// <returns>Signature</returns>
-        public static Signature SignLegacy(List<bool> messages, string privateKey, Network networkId = Network.Mainnet)
+        public static Signature SignLegacy(HashInputLegacy hashInput, string privateKey, Network networkId = Network.Mainnet)
         {
             var pKey = new PrivateKey(privateKey);
-            var kPrime = DeriveNonceLegacy(messages, pKey, networkId);
+            var kPrime = DeriveNonceLegacy(hashInput, pKey, networkId);
             if (kPrime == BigInteger.Zero)
             {
                 throw new Exception("sign: derived nonce is 0");
@@ -111,7 +113,7 @@ namespace MinaSignerNet
             var r = groupKPrime.X;
             var k = groupKPrime.Y.IsEven ? kPrime : FiniteField.Negate(kPrime, Constants.Q);
             var prefix = networkId == Network.Mainnet ? Constants.SignatureMainnet : Constants.SignatureTestnet;
-            var e = PoseidonHash.HashMessageLegacy(messages, pKey, r, networkId);
+            var e = PoseidonHash.HashMessageLegacy(hashInput, pKey, r, networkId);
             var s = FiniteField.Add(k, FiniteField.Mul(e, pKey.S, Constants.Q), Constants.Q);
 
             return new Signature() { R = r, S = s };
@@ -130,15 +132,14 @@ namespace MinaSignerNet
         {
             var pKey = new PrivateKey(privateKey);
             UserCommand userCommand = new UserCommand(paymentInfo);
-            var hashInput = userCommand.GetInputLegacy();
-
 
             return SignUserCommand(userCommand, privateKey, networkId);
         }
 
         public static Signature SignUserCommand(UserCommand userCommand, string privateKey, Network networkId = Network.Mainnet)
         {
-            return new Signature();
+            var hashInput = userCommand.GetInputLegacy();
+            return SignLegacy(hashInput, privateKey, networkId);
         }
 
         /// <summary>
@@ -260,9 +261,11 @@ namespace MinaSignerNet
             return new BigInteger(outputBytes);
         }
 
-        public static BigInteger DeriveNonceLegacy(List<bool> messages, PrivateKey privateKey, Network networkId)
+        public static BigInteger DeriveNonceLegacy(HashInputLegacy message, PrivateKey privateKey, Network networkId)
         {
             var input = new HashInputLegacy();
+            // don't pass it by ref, we need original value for hasmessage legacy
+            input.Add(message);
             var group = Group.FromPrivateKey(privateKey);
             Debug.WriteLine(group.ToString());
             var publicKey = privateKey.GetPublicKey();
@@ -270,7 +273,6 @@ namespace MinaSignerNet
 
             var networkBytes = new List<Byte> { (byte)networkId };
             var idBits = networkBytes.BytesToBits(8);
-            input.Bits.AddRange(messages);
             input.Bits.AddRange(scalarBits);
             input.Bits.AddRange(idBits);
             input.Fields.Add(group.X);
