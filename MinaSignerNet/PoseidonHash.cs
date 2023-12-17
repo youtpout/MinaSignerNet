@@ -27,11 +27,13 @@ namespace MinaSignerNet
             var list = new List<BigInteger> { prefixBigInteger };
             // salt prefix
             var init = PoseidonUpdate(initialState, list, PoseidonConstant.PoseidonConfigLegacyFp);
-            return PoseidonUpdate(init, input,PoseidonConstant.PoseidonConfigLegacyFp).First();
+            return PoseidonUpdate(init, input, PoseidonConstant.PoseidonConfigLegacyFp).First();
         }
 
-        public static BigInteger HashMessageLegacy(HashInputLegacy input, PrivateKey privateKey, BigInteger r, Network networkId)
+        public static BigInteger HashMessageLegacy(HashInputLegacy messages, PrivateKey privateKey, BigInteger r, Network networkId)
         {
+            var input = new HashInputLegacy();
+            input.Add(messages);
             var group = Group.FromPrivateKey(privateKey);
             input.Fields.Add(group.X);
             input.Fields.Add(group.Y);

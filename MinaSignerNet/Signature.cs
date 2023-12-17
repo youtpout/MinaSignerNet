@@ -132,12 +132,6 @@ namespace MinaSignerNet
         {
             var pKey = new PrivateKey(privateKey);
             UserCommand userCommand = new UserCommand(paymentInfo);
-
-            return SignUserCommand(userCommand, privateKey, networkId);
-        }
-
-        public static Signature SignUserCommand(UserCommand userCommand, string privateKey, Network networkId = Network.Mainnet)
-        {
             var hashInput = userCommand.GetInputLegacy();
             return SignLegacy(hashInput, privateKey, networkId);
         }

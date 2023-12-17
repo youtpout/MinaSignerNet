@@ -42,7 +42,7 @@ namespace MinaSignerNet.Models
             var feePayer = Common.FeePayer.ToHashInputLegacy();
             var nonce = Common.Nonce.ToBits();
             var validUntil = Common.ValidUntil.ToBits();
-            var memo = Common.Memo.ToString().ToBits();
+            var memo = Common.Memo.ToBits();
 
             var hashInputCommon = new HashInputLegacy();
             hashInputCommon.Bits.AddRange(feeBits);

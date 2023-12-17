@@ -48,5 +48,11 @@ namespace MinaSignerNet.Utils
             var val = tagValue == TagEnum.Payment ? 0 : 1;
             return new List<bool> { (val & 4) > 0, (val & 2) > 0, (val & 1) > 0 };
         }
+
+        public static List<bool> ToBits(this Memo memoValue)
+        {
+            var msgByte = Encoding.UTF8.GetBytes(memoValue.ToString());
+            return msgByte.BytesToBits();
+        }
     }
 }
