@@ -27,7 +27,7 @@ namespace MinaSignerNet.Models
             {
                 Fee = paymentInfo.Fee,
                 FeePayer = new PublicKey(paymentInfo.From),
-                Memo = paymentInfo.Memo,
+                Memo = new Memo(paymentInfo.Memo),
                 Nonce = paymentInfo.Nonce,
                 ValidUntil = paymentInfo.ValidUntil
             };
@@ -42,7 +42,7 @@ namespace MinaSignerNet.Models
             var feePayer = Common.FeePayer.ToHashInputLegacy();
             var nonce = Common.Nonce.ToBits();
             var validUntil = Common.ValidUntil.ToBits();
-            var memo = Common.Memo.ToBits();
+            var memo = Common.Memo.ToString().ToBits();
 
             var hashInputCommon = new HashInputLegacy();
             hashInputCommon.Bits.AddRange(feeBits);

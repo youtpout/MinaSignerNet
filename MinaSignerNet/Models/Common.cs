@@ -10,6 +10,6 @@ namespace MinaSignerNet.Models
         public PublicKey FeePayer { get; set; }
         public UInt32 Nonce { get; set; }
         public UInt32 ValidUntil { get; set; }
-        public string Memo { get; set; }
+        public Memo Memo { get; set; }
     }
 }

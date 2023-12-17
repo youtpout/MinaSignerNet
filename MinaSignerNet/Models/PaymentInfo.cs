@@ -14,5 +14,10 @@ namespace MinaSignerNet.Models
         public UInt32 Nonce { get; set; }
         public string Memo { get; set; }
         public UInt32 ValidUntil { get; set; }
+
+        public PaymentInfo()
+        {
+            Memo = string.Empty;
+        }
     }
 }
