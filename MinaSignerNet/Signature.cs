@@ -136,6 +136,13 @@ namespace MinaSignerNet
             return SignLegacy(hashInput, privateKey, networkId);
         }
 
+        public static bool VerifyPayment(Signature signature, PaymentInfo paymentInfo, string publicKey, Network networkId = Network.Mainnet)
+        {
+            UserCommand userCommand = new UserCommand(paymentInfo);
+            var hashInput = userCommand.GetInputLegacy();
+            return VerifyLegacy(signature, hashInput, publicKey, networkId);
+        }
+
         /// <summary>
         /// Verifies a signature created by Sign method, returns `true` if (and only if) the signature is valid. 
         /// </summary>
@@ -167,7 +174,9 @@ namespace MinaSignerNet
                 byteTobit.Reverse();
                 return byteTobit;
             }).SelectMany(x => x).ToList();
-            return VerifyLegacy(signature, bits, publicKey, networkId);
+            HashInputLegacy hashInput = new HashInputLegacy();
+            hashInput.Bits.AddRange(bits);
+            return VerifyLegacy(signature, hashInput, publicKey, networkId);
         }
 
 
@@ -206,7 +215,7 @@ namespace MinaSignerNet
         }
 
 
-        public static bool VerifyLegacy(Signature signature, List<bool> messages, string publicKey, Network networkId = Network.Mainnet)
+        public static bool VerifyLegacy(Signature signature, HashInputLegacy messages, string publicKey, Network networkId = Network.Mainnet)
         {
             var pubKey = new PublicKey(publicKey);
             var groupPubKey = Group.FromPublickKey(pubKey);

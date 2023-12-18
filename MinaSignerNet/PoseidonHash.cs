@@ -43,10 +43,10 @@ namespace MinaSignerNet
             return HashWithPrefixLegacy(prefix, input.GetFieldsLegacy());
         }
 
-        public static BigInteger HashMessageLegacy(List<bool> messages, Group groupPublicKey, BigInteger r, Network networkId)
+        public static BigInteger HashMessageLegacy(HashInputLegacy messages, Group groupPublicKey, BigInteger r, Network networkId)
         {
             var input = new HashInputLegacy();
-            input.Bits.AddRange(messages);
+            input.Add(messages);
             input.Fields.Add(groupPublicKey.X);
             input.Fields.Add(groupPublicKey.Y);
             input.Fields.Add(r);
