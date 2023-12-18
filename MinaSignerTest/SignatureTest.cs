@@ -253,6 +253,38 @@ namespace MinaSignerTest
             Assert.True(isGood);
         }
 
+
+        [Fact]
+        public void SignStakeDelegation()
+        {
+            string privKey = "EKDtctFSZuDJ8SXuWcbXHot57gZDtu7dNSAZNZvXek8KF8q6jV8K";
+            // string signatureBase58 = "7mXNcsg23PYDdziVuh2s9skr3fx3PV9UGxAtzRf4KwLmwVnypCPGwmUsRW6TmTKTLTP3KerhfdYWRLWtFGmFe2J6CF4GByvv";
+            string s = "1210747757314156845333892046382278883199988726527035050528950282330600135250";
+            string r = "1876176797695116221873799098507624551309138390130374631699107274774635255795";
+
+            string pubKey = "B62qj5tBbE2xyu9k4r7G5npAGpbU1JDBkZm85WCVDMdCrHhS2v2Dy2y";
+            string toKey = "B62qkR9Har8apahum18KggGtHbAiumoQ65b6uH4vukaqdh3LZCA9jt5";
+
+            var delegationInfo = new DelegationInfo()
+            {
+                Fee = 1,
+                Nonce = 0,
+                From = pubKey,
+                To = toKey,
+                ValidUntil = 1702800000
+            };
+
+            Signature signature = Signature.SignStakeDelegation(delegationInfo, privKey, Network.Testnet);
+
+            Assert.Equal(BigInteger.Parse(s), signature.S);
+            Assert.Equal(BigInteger.Parse(r), signature.R);
+            output.WriteLine("signature " + signature.ToString());
+            // Assert.Equal(signatureBase58, signature.ToString());
+
+            var isGood = Signature.VerifyStakeDelegation(signature, delegationInfo, pubKey, Network.Testnet);
+            Assert.True(isGood);
+        }
+
         [Fact]
         public void Base58()
         {

@@ -38,7 +38,6 @@ namespace MinaSignerNet.Models
         {
             Body = new Body()
             {
-                Amount = delegationInfo.Amount,
                 Receiver = new PublicKey(delegationInfo.To),
                 Source = new PublicKey(delegationInfo.From),
                 Tag = TagEnum.StakeDelegation
