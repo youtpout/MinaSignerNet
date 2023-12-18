@@ -34,6 +34,27 @@ namespace MinaSignerNet.Models
 
         }
 
+        public UserCommand(DelegationInfo delegationInfo)
+        {
+            Body = new Body()
+            {
+                Amount = delegationInfo.Amount,
+                Receiver = new PublicKey(delegationInfo.To),
+                Source = new PublicKey(delegationInfo.From),
+                Tag = TagEnum.StakeDelegation
+            };
+
+            Common = new Common()
+            {
+                Fee = delegationInfo.Fee,
+                FeePayer = new PublicKey(delegationInfo.From),
+                Memo = new Memo(delegationInfo.Memo),
+                Nonce = delegationInfo.Nonce,
+                ValidUntil = delegationInfo.ValidUntil
+            };
+
+        }
+
         public HashInputLegacy GetInputLegacy()
         {
             // common

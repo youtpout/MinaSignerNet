@@ -136,9 +136,48 @@ namespace MinaSignerNet
             return SignLegacy(hashInput, privateKey, networkId);
         }
 
+        /// <summary>
+        /// Sign a delegation transaction from a privateKey
+        /// </summary>
+        /// <param name="delegationInfo">delegation info (from,to,price,amount,nonce)</param>
+        /// <param name="privateKey">private key in base58 format</param>
+        /// <param name="networkId">network id by default we use mainnet</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static Signature SignStakeDelegation(DelegationInfo delegationInfo, string privateKey, Network networkId = Network.Mainnet)
+        {
+            var pKey = new PrivateKey(privateKey);
+            UserCommand userCommand = new UserCommand(delegationInfo);
+            var hashInput = userCommand.GetInputLegacy();
+            return SignLegacy(hashInput, privateKey, networkId);
+        }
+
+        /// <summary>
+        /// Verifies a signature created by SignPayment method, returns `true` if (and only if) the signature is valid. 
+        /// </summary>
+        /// <param name="signature">signature to check</param>
+        /// <param name="paymentInfo">payment info (from,to,price,amount,nonce)</param>
+        /// <param name="publicKey">public key in base58 format</param>
+        /// <param name="networkId">network id by default we use mainnet</param>
+        /// <returns>True if correct</returns>
         public static bool VerifyPayment(Signature signature, PaymentInfo paymentInfo, string publicKey, Network networkId = Network.Mainnet)
         {
             UserCommand userCommand = new UserCommand(paymentInfo);
+            var hashInput = userCommand.GetInputLegacy();
+            return VerifyLegacy(signature, hashInput, publicKey, networkId);
+        }
+
+        /// <summary>
+        /// Verifies a signature created by SignStakeDelegation method, returns `true` if (and only if) the signature is valid. 
+        /// </summary>
+        /// <param name="signature">signature to check</param>
+        /// <param name="delegationInfo">delegation info (from,to,price,amount,nonce)</param>
+        /// <param name="publicKey">public key in base58 format</param>
+        /// <param name="networkId">network id by default we use mainnet</param>
+        /// <returns>True if correct</returns>
+        public static bool VerifyStakeDelegation(Signature signature, DelegationInfo delegationInfo, string publicKey, Network networkId = Network.Mainnet)
+        {
+            UserCommand userCommand = new UserCommand(delegationInfo);
             var hashInput = userCommand.GetInputLegacy();
             return VerifyLegacy(signature, hashInput, publicKey, networkId);
         }
