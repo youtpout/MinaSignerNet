@@ -30,6 +30,23 @@ namespace MinaSignerTest
             Assert.Equal(pubKey, key.ToString());
         }
 
+        [Fact]
+        public void GenerateFromField()
+        {
+            string pubKey = "B62qoSZbMLJSP7dHLqe8spFPFSsUoENnMSHJN8i5bS1X4tdGpAZuwAC";
+            BigInteger decoded = BigInteger.Parse("14397248173791335207991742075202569184707440408210700256179861839259542801300");
+
+            PublicKey key = new PublicKey(pubKey);
+
+            PublicKey key2 = new PublicKey(decoded, true);
+
+            output.WriteLine("decoding result : " + key.X.ToString());
+
+            output.WriteLine("key regenerated result : " + key2.ToString());
+            Assert.Equal(decoded, key.X);
+
+            Assert.Equal(pubKey, key2.ToString());
+        }
 
     }
 }
