@@ -19,6 +19,55 @@ namespace MinaSignerTest
         }
 
         [Fact]
+        public void ConvertMds()
+        {
+            output.WriteLine("const MAT_INTERNAL_DIAG_M_1: &'static [FpPallas] = &[");
+            foreach (var value in PoseidonConstant.PoseidonConfigKimchiFp.Mds.SelectMany(x => x))
+            {
+                string hex = BigIntToRustHex(value);
+                output.WriteLine($"    fp_from_hex!(\"{hex}\"),");
+            }
+            output.WriteLine("];");
+        }
+
+        [Fact]
+        public void RoundConstants()
+        {
+            output.WriteLine("const MAT: &'static [[FpPallas; 3]; 2] = &[");
+            foreach (var row in PoseidonConstant.PoseidonConfigKimchiFp.RoundConstants)
+            {
+                output.WriteLine("    [");
+                for (int i = 0; i < row.Count; i++)
+                {
+                    string hex = BigIntToRustHex(row[i]);
+                    output.WriteLine($"fp_from_hex!(\"{hex}\")");
+                    if (i < row.Count - 1)
+                        output.WriteLine(", ");
+                }
+                output.WriteLine("],");
+            }
+            output.WriteLine("];");
+        }
+
+        static string BigIntToRustHex(BigInteger value)
+        {
+            if (value.Sign < 0)
+                throw new Exception("Negative values are not supported for Fp elements.");
+
+            // Convert to big-endian byte array
+            byte[] bytes = value.ToByteArray(isUnsigned: true, isBigEndian: true);
+
+            // Pad to 32 bytes (256 bits)
+            if (bytes.Length > 32)
+                throw new Exception("Value too large for 256-bit field element.");
+
+            byte[] padded = new byte[32];
+            Array.Copy(bytes, 0, padded, 32 - bytes.Length, bytes.Length);
+
+            return BitConverter.ToString(padded).Replace("-", "").ToLowerInvariant();
+        }
+
+        [Fact]
         public void Hash()
         {
 
