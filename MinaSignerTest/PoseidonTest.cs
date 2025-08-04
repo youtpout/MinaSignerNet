@@ -33,10 +33,10 @@ namespace MinaSignerTest
         [Fact]
         public void RoundConstants()
         {
-            output.WriteLine("const MAT: &'static [[FpPallas; 3]; 2] = &[");
+            output.WriteLine("const ROUND_CONSTANTS: &'static [&'static [FpKimchi]] = &[");
             foreach (var row in PoseidonConstant.PoseidonConfigKimchiFp.RoundConstants)
             {
-                output.WriteLine("    [");
+                output.WriteLine("    &[");
                 for (int i = 0; i < row.Count; i++)
                 {
                     string hex = BigIntToRustHex(row[i]);
